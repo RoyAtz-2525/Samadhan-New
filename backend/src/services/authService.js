@@ -4,9 +4,24 @@ const { generateAccessToken, generateRefreshToken } = require("../utils/jwt");
 
 const prisma = new PrismaClient();
 
+const normalizeEmail = (email) => {
+  if (typeof email !== "string" || !email.trim()) {
+    throw { statusCode: 400, message: "A valid email is required" };
+  }
+  return email.trim().toLowerCase();
+};
+
+const normalizePhone = (phone) => {
+  if (phone == null || phone === "") return null;
+  if (typeof phone !== "string") {
+    throw { statusCode: 400, message: "Phone number must be a string" };
+  }
+  return phone.trim() || null;
+};
+
 const registerCitizen = async ({ email, password, name, phone }) => {
-  const normalizedEmail = email.trim().toLowerCase();
-  const normalizedPhone = phone?.trim() || null;
+  const normalizedEmail = normalizeEmail(email);
+  const normalizedPhone = normalizePhone(phone);
   const orConditions = [
     { email: { equals: normalizedEmail, mode: "insensitive" } },
   ];
@@ -54,8 +69,8 @@ const registerCitizen = async ({ email, password, name, phone }) => {
 };
 
 const registerWorker = async ({ email, password, name, phone }) => {
-  const normalizedEmail = email.trim().toLowerCase();
-  const normalizedPhone = phone?.trim() || null;
+  const normalizedEmail = normalizeEmail(email);
+  const normalizedPhone = normalizePhone(phone);
   const orConditions = [
     { email: { equals: normalizedEmail, mode: "insensitive" } },
   ];
@@ -102,8 +117,9 @@ const registerWorker = async ({ email, password, name, phone }) => {
 };
 
 const login = async ({ email, password }) => {
+  const normalizedEmail = normalizeEmail(email);
   const user = await prisma.user.findFirst({
-    where: { email: { equals: email.trim(), mode: "insensitive" } },
+    where: { email: { equals: normalizedEmail, mode: "insensitive" } },
     include: { role: true },
   });
 
