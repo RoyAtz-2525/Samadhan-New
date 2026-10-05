@@ -19,6 +19,46 @@ const paymentRoutes = require("./routes/paymentRoutes");
 
 const isProduction = process.env.NODE_ENV === "production";
 const frontendOrigin = process.env.FRONTEND_URL;
+
+if (isProduction) {
+  const requiredVariables = [
+    "DATABASE_URL",
+    "JWT_ACCESS_SECRET",
+    "JWT_REFRESH_SECRET",
+    "FRONTEND_URL",
+    "CLOUDINARY_CLOUD_NAME",
+    "CLOUDINARY_API_KEY",
+    "CLOUDINARY_API_SECRET",
+  ];
+  const missingVariables = requiredVariables.filter(
+    (name) => !process.env[name],
+  );
+  const invalidSecrets = ["JWT_ACCESS_SECRET", "JWT_REFRESH_SECRET"].filter(
+    (name) =>
+      process.env[name] &&
+      (process.env[name].length < 32 ||
+        /placeholder|replace[_-]?with|change[_-]?me|dummy|default|example|your[_-]?secret/i.test(
+          process.env[name],
+        )),
+  );
+
+  if (
+    process.env.JWT_ACCESS_SECRET &&
+    process.env.JWT_ACCESS_SECRET === process.env.JWT_REFRESH_SECRET
+  ) {
+    invalidSecrets.push(
+      "JWT_ACCESS_SECRET and JWT_REFRESH_SECRET must be different",
+    );
+  }
+
+  if (missingVariables.length || invalidSecrets.length) {
+    throw new Error(
+      `Invalid production environment configuration. Missing: ${missingVariables.join(", ") || "none"}. ` +
+        `Invalid: ${invalidSecrets.join(", ") || "none"}.`,
+    );
+  }
+}
+
 let parsedFrontendOrigin;
 
 try {
@@ -68,9 +108,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Basic route to verify server is running
-app.get("/health", (req, res) => {
+const healthHandler = (req, res) => {
   res.status(200).json({ status: "ok", message: "SAMADHAN API is running" });
-});
+};
+app.get(["/health", "/api/health"], healthHandler);
 
 // Routes
 app.use("/api/auth", authRoutes);
