@@ -1,60 +1,173 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../../../context/AuthContext';
-import { ArrowRight, MapPin } from 'lucide-react';
+import React from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../../context/AuthContext";
+import { ArrowRight, CheckCircle2, ShieldCheck, Users } from "lucide-react";
+import heroImg from "../../../assets/home-hero.png";
 
 const HomeHero = () => {
   const { user } = useAuth();
+
+  const getPrimaryRoute = () => {
+    if (!user) return "/register";
+
+    switch (user.role?.name) {
+      case "CITIZEN":
+        return "/citizen/report-issue";
+      case "ADMIN":
+        return "/admin";
+      case "MANAGER":
+        return "/manager";
+      case "WORKER":
+        return "/worker";
+      case "SUPER_ADMIN":
+        return "/super-admin";
+      default:
+        return "/";
+    }
+  };
+
   return (
-    <section className="bg-blue-50 py-16 sm:py-24 overflow-hidden relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight tracking-tight mb-6">
-              Report. <span className="text-blue-600">Track.</span> Resolve.
+    <section className="relative isolate overflow-hidden bg-[#F5F7FA]">
+      {/* Background Decoration */}
+      <div className="pointer-events-none absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[#0F9D8A]/5 blur-3xl" />
+
+      <div className="pointer-events-none absolute -bottom-40 right-0 h-[500px] w-[500px] rounded-full bg-[#3B82F6]/5 blur-3xl" />
+
+      {/* Subtle Grid */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.025]"
+        style={{
+          backgroundImage:
+            "linear-gradient(#0B1F3A 1px, transparent 1px), linear-gradient(90deg, #0B1F3A 1px, transparent 1px)",
+          backgroundSize: "48px 48px",
+        }}
+      />
+
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid items-center gap-6 py-9 sm:gap-8 sm:py-12 lg:grid-cols-[0.92fr_1.08fr] lg:gap-2 lg:py-12">
+          {/* LEFT CONTENT */}
+          <div className="relative z-10 max-w-2xl">
+            {/* Eyebrow */}
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#E2E8F0] bg-white px-3.5 py-2 shadow-sm">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#EAF7F5]">
+                <ShieldCheck size={14} className="text-[#0F9D8A]" />
+              </span>
+
+              <span className="text-xs font-bold uppercase tracking-[0.12em] text-[#64748B]">
+                Civic Issue Resolution Platform
+              </span>
+            </div>
+
+            {/* Heading */}
+            <h1 className="max-w-xl text-4xl font-extrabold leading-[1.05] tracking-tight text-[#0F172A] sm:text-5xl lg:text-[4rem]">
+              Report. <span className="text-[#0F9D8A]">Track.</span>{" "}
+              <span className="text-[#0B1F3A]">Resolve.</span>
             </h1>
-            <p className="text-lg sm:text-xl text-gray-600 mb-8 max-w-lg">
-              SAMADHAN connects citizens, authorities and field workers through a structured civic issue resolution workflow.
+
+            {/* Description */}
+            <p className="mt-5 max-w-xl text-base leading-7 text-[#64748B] sm:text-lg sm:leading-8">
+              SAMADHAN connects citizens, authorities and field workers through
+              a structured civic issue resolution workflow.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link to={!user ? "/register" : user.role?.name === 'CITIZEN' ? "/citizen/report-issue" : user.role?.name === 'ADMIN' ? "/admin" : user.role?.name === 'MANAGER' ? "/manager" : user.role?.name === 'WORKER' ? "/worker" : user.role?.name === 'SUPER_ADMIN' ? "/super-admin" : "/"} state={!user ? { from: "/citizen/report-issue" } : undefined} className="inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+
+            {/* CTA */}
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+              <Link
+                to={getPrimaryRoute()}
+                state={!user ? { from: "/citizen/report-issue" } : undefined}
+                className="group inline-flex items-center justify-center gap-2 rounded-lg bg-[#0B1F3A] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(11,31,58,0.18)] transition-all duration-200 hover:bg-[#12345B] hover:shadow-[0_12px_30px_rgba(11,31,58,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6] focus-visible:ring-offset-2"
+              >
                 Report an Issue
-                <ArrowRight className="ml-2 -mr-1 h-5 w-5" aria-hidden="true" />
+                <ArrowRight
+                  size={18}
+                  className="transition-transform duration-200 group-hover:translate-x-1"
+                />
               </Link>
-              <Link to="/how-it-works" className="inline-flex justify-center items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+
+              <Link
+                to="/how-it-works"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#CBD5E1] bg-white px-6 py-3.5 text-sm font-semibold text-[#0B1F3A] shadow-sm transition-all duration-200 hover:border-[#94A3B8] hover:bg-[#F8FAFC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6] focus-visible:ring-offset-2"
+              >
                 See How It Works
               </Link>
             </div>
+
+            {/* Trust Points */}
+            <div className="mt-7 flex flex-wrap gap-x-5 gap-y-2.5">
+              <div className="flex items-center gap-2 text-xs font-medium text-[#64748B]">
+                <CheckCircle2 size={15} className="text-[#16A34A]" />
+                Structured workflow
+              </div>
+
+              <div className="flex items-center gap-2 text-xs font-medium text-[#64748B]">
+                <CheckCircle2 size={15} className="text-[#16A34A]" />
+                Transparent tracking
+              </div>
+
+              <div className="flex items-center gap-2 text-xs font-medium text-[#64748B]">
+                <CheckCircle2 size={15} className="text-[#16A34A]" />
+                Community focused
+              </div>
+            </div>
           </div>
-          
-          <div className="relative hidden lg:block h-[400px] w-full bg-white rounded-2xl shadow-xl border border-gray-100 p-8 overflow-hidden">
-            <div className="absolute inset-0 bg-blue-50/30 rounded-2xl" />
-            <div className="relative h-full w-full flex flex-col justify-between">
-               <div className="flex justify-between items-start">
-                  <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex items-center space-x-3 w-64 z-10">
-                    <div className="bg-red-100 p-2 rounded-full"><MapPin className="text-red-600 h-5 w-5" /></div>
-                    <div>
-                      <div className="text-xs text-gray-500 font-medium">Reported</div>
-                      <div className="font-semibold text-gray-900 text-sm">Pothole on Main St</div>
-                    </div>
-                  </div>
-               </div>
-               
-               <div className="absolute left-1/2 top-16 bottom-16 w-1 bg-gradient-to-b from-red-200 via-blue-200 to-green-200 rounded-full transform -translate-x-1/2"></div>
-               
-               <div className="flex justify-end items-end relative z-10">
-                  <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex items-center space-x-3 w-64">
-                    <div className="flex-1">
-                      <div className="text-xs text-gray-500 font-medium text-right">Resolved</div>
-                      <div className="font-semibold text-gray-900 text-sm text-right">Road Repaired</div>
-                    </div>
-                    <div className="bg-green-100 p-2 rounded-full"><ArrowRight className="text-green-600 h-5 w-5" /></div>
-                  </div>
-               </div>
+
+          {/* RIGHT ILLUSTRATION */}
+          <div className="relative flex min-h-[310px] items-center justify-center sm:min-h-[380px] lg:min-h-[500px]">
+            {/* Soft Glow */}
+            <div className="absolute right-0 top-1/2 h-[75%] w-[85%] -translate-y-1/2 rounded-full bg-[#0F9D8A]/5 blur-3xl" />
+
+            {/* Image */}
+            <div className="relative w-full">
+              <img
+                src={heroImg}
+                alt="SAMADHAN civic issue resolution community"
+                className="relative z-10 ml-auto h-auto w-full max-w-[680px] object-contain drop-shadow-[0_20px_40px_rgba(15,23,42,0.10)]"
+              />
+            </div>
+
+            {/* Floating Status Card */}
+            <div className="absolute bottom-3 left-2 z-20 hidden rounded-2xl border border-[#E2E8F0] bg-white/95 p-3.5 shadow-[0_12px_35px_rgba(15,23,42,0.12)] backdrop-blur-sm sm:block lg:bottom-8 lg:left-0">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#EAF7F5]">
+                  <CheckCircle2 size={19} className="text-[#0F9D8A]" />
+                </div>
+
+                <div>
+                  <p className="text-xs font-bold text-[#0F172A]">
+                    From Report to Resolution
+                  </p>
+
+                  <p className="mt-0.5 text-[11px] text-[#64748B]">
+                    One structured civic workflow
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Floating Community Card */}
+            <div className="absolute right-0 top-3 z-20 hidden rounded-2xl border border-[#E2E8F0] bg-white/95 p-3 shadow-[0_12px_35px_rgba(15,23,42,0.10)] backdrop-blur-sm sm:block lg:top-8">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#EFF6FF]">
+                  <Users size={17} className="text-[#3B82F6]" />
+                </div>
+
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-[#94A3B8]">
+                    Connected
+                  </p>
+
+                  <p className="text-xs font-bold text-[#0B1F3A]">
+                    Citizens & Authorities
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Bottom transition */}
+      <div className="relative h-px bg-gradient-to-r from-transparent via-[#E2E8F0] to-transparent" />
     </section>
   );
 };
