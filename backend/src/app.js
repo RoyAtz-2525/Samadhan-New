@@ -1,27 +1,28 @@
-const express = require("express");
-const cors = require("cors");
-const helmet = require("helmet");
-const rateLimit = require("express-rate-limit");
-const cookieParser = require("cookie-parser");
+var express = require("express");
+var cors = require("cors");
+var helmet = require("helmet");
+var rateLimit = require("express-rate-limit");
+var cookieParser = require("cookie-parser");
 
-const authRoutes = require("./routes/authRoutes");
-const issueRoutes = require("./routes/issueRoutes");
-const adminRoutes = require("./routes/adminRoutes");
-const managerRoutes = require("./routes/managerRoutes");
-const workerRoutes = require("./routes/workerRoutes");
-const verificationRoutes = require("./routes/verificationRoutes");
-const superAdminRoutes = require("./routes/superAdminRoutes");
-const { errorHandler } = require("./middleware/errorMiddleware");
+var authRoutes = require("./routes/authRoutes");
+var issueRoutes = require("./routes/issueRoutes");
+var adminRoutes = require("./routes/adminRoutes");
+var managerRoutes = require("./routes/managerRoutes");
+var workerRoutes = require("./routes/workerRoutes");
+var verificationRoutes = require("./routes/verificationRoutes");
+var superAdminRoutes = require("./routes/superAdminRoutes");
+var paymentRoutes = require("./routes/paymentRoutes");
 
-const app = express();
+var errorHandler = require("./middleware/errorMiddleware").errorHandler;
 
-const paymentRoutes = require("./routes/paymentRoutes");
+var app = express();
 
-const isProduction = process.env.NODE_ENV === "production";
-const frontendOrigin = process.env.FRONTEND_URL;
+var isProduction = process.env.NODE_ENV === "production";
+var frontendOrigin = process.env.FRONTEND_URL || "http://localhost:5173";
 
+/* Production environment validation */
 if (isProduction) {
-  const requiredVariables = [
+  var requiredVariables = [
     "DATABASE_URL",
     "JWT_ACCESS_SECRET",
     "JWT_REFRESH_SECRET",
@@ -30,90 +31,78 @@ if (isProduction) {
     "CLOUDINARY_API_KEY",
     "CLOUDINARY_API_SECRET",
   ];
-  const missingVariables = requiredVariables.filter(
-    (name) => !process.env[name],
-  );
-  const invalidSecrets = ["JWT_ACCESS_SECRET", "JWT_REFRESH_SECRET"].filter(
-    (name) =>
-      process.env[name] &&
-      (process.env[name].length < 32 ||
-        /placeholder|replace[_-]?with|change[_-]?me|dummy|default|example|your[_-]?secret/i.test(
-          process.env[name],
-        )),
-  );
+
+  var missingVariables = requiredVariables.filter(function (name) {
+    return !process.env[name];
+  });
+
+  if (missingVariables.length > 0) {
+    throw new Error(
+      "Missing production environment variables: " +
+        missingVariables.join(", "),
+    );
+  }
 
   if (
-    process.env.JWT_ACCESS_SECRET &&
-    process.env.JWT_ACCESS_SECRET === process.env.JWT_REFRESH_SECRET
+    process.env.JWT_ACCESS_SECRET.length < 32 ||
+    process.env.JWT_REFRESH_SECRET.length < 32
   ) {
-    invalidSecrets.push(
-      "JWT_ACCESS_SECRET and JWT_REFRESH_SECRET must be different",
-    );
+    throw new Error("JWT secrets must be at least 32 characters long.");
   }
 
-  if (missingVariables.length || invalidSecrets.length) {
-    throw new Error(
-      `Invalid production environment configuration. Missing: ${missingVariables.join(", ") || "none"}. ` +
-        `Invalid: ${invalidSecrets.join(", ") || "none"}.`,
-    );
+  if (process.env.JWT_ACCESS_SECRET === process.env.JWT_REFRESH_SECRET) {
+    throw new Error("JWT access and refresh secrets must be different.");
+  }
+
+  try {
+    var frontendUrl = new URL(frontendOrigin);
+
+    if (frontendUrl.protocol !== "https:") {
+      throw new Error("HTTPS required");
+    }
+  } catch (error) {
+    throw new Error("Production FRONTEND_URL must be a valid HTTPS URL.");
   }
 }
 
-let parsedFrontendOrigin;
-
-try {
-  parsedFrontendOrigin = frontendOrigin ? new URL(frontendOrigin) : null;
-} catch {
-  parsedFrontendOrigin = null;
-}
-
-if (
-  frontendOrigin === "*" ||
-  (isProduction &&
-    (!parsedFrontendOrigin ||
-      parsedFrontendOrigin.origin !== frontendOrigin ||
-      parsedFrontendOrigin.protocol !== "https:" ||
-      ["localhost", "127.0.0.1", "0.0.0.0", "::1"].includes(
-        parsedFrontendOrigin.hostname,
-      )))
-) {
-  throw new Error(
-    "Production FRONTEND_URL must be an exact HTTPS frontend origin; wildcard and local origins are not allowed.",
-  );
-}
-
-// Security and utility middlewares
+/* Security */
 app.use(helmet());
+
 app.use(
   cors({
-    origin: frontendOrigin || "http://localhost:5173",
+    origin: frontendOrigin,
     credentials: true,
   }),
 );
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-});
-app.use("/api", limiter);
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+  }),
+);
 
+/* Body parsing */
 app.use(
   express.json({
-    verify: (req, res, buf) => {
+    verify: function (req, res, buf) {
       req.rawBody = buf;
     },
   }),
 );
+
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Basic route to verify server is running
-const healthHandler = (req, res) => {
-  res.status(200).json({ status: "ok", message: "SAMADHAN API is running" });
-};
-app.get(["/health", "/api/health"], healthHandler);
+/* Health check */
+app.get(["/health", "/api/health"], function (req, res) {
+  res.status(200).json({
+    status: "ok",
+    message: "SAMADHAN API is running",
+  });
+});
 
-// Routes
+/* API routes */
 app.use("/api/auth", authRoutes);
 app.use("/api/issues", issueRoutes);
 app.use("/api/admin", adminRoutes);
@@ -123,7 +112,7 @@ app.use("/api/verification", verificationRoutes);
 app.use("/api/super-admin", superAdminRoutes);
 app.use("/api", paymentRoutes);
 
-// Global Error Handler
+/* Error handler */
 app.use(errorHandler);
 
 module.exports = app;
