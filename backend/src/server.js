@@ -11,9 +11,7 @@ if (process.env.NODE_ENV === "production") {
     "CLOUDINARY_CLOUD_NAME",
     "CLOUDINARY_API_KEY",
     "CLOUDINARY_API_SECRET",
-    "RAZORPAY_KEY_ID",
-    "RAZORPAY_KEY_SECRET",
-    "RAZORPAY_WEBHOOK_SECRET",
+    // RAZORPAY variables not required yet - payment not implemented
   ];
   const missingVariables = requiredVariables.filter(
     (name) => !process.env[name],
