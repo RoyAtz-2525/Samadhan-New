@@ -1,0 +1,26 @@
+node_modules/
+dist/
+build/
+coverage/
+logs/
+*.log
+
+# Environments
+.env
+.env.*
+!.env.example
+
+# OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Keys and credentials
+*.pem
+*.key
+*.p12
+*.pfx
+*.p8
+*service-account*.json
+*credential*.json

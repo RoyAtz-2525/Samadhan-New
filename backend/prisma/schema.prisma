@@ -1,0 +1,543 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RoleType {
+  CITIZEN
+  ADMIN
+  MANAGER
+  WORKER
+  SUPER_ADMIN
+}
+
+enum IssuePriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum IssueStatus {
+  REPORTED
+  UNDER_REVIEW
+  REJECTED
+  APPROVED
+  ASSIGNED
+  WORK_STARTED
+  WORK_COMPLETED
+  UNDER_VERIFICATION
+  RESOLVED
+  CANCELLED
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  DOCUMENT
+}
+
+enum AssignmentStatus {
+  PENDING
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  REJECTED
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REVISION_REQUESTED
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum AppraisalStatus {
+  DRAFT
+  SUBMITTED
+  ACKNOWLEDGED
+}
+
+enum NotificationType {
+  INFO
+  ALERT
+  ASSIGNMENT
+  PAYMENT
+  ISSUE_UPDATE
+  APPRAISAL
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  phone        String?  @unique
+  passwordHash String
+  status       String   @default("ACTIVE")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  roleId String
+  role   Role   @relation(fields: [roleId], references: [id])
+
+  citizenProfile CitizenProfile?
+  adminProfile   AdminProfile?
+  managerProfile ManagerProfile?
+  workerProfile  WorkerProfile?
+
+  notifications           Notification[]
+  auditLogs               AuditLog[]
+  issueStatusChanges      IssueStatusHistory[]      @relation("IssueStatusChangedBy")
+  assignmentStatusChanges AssignmentStatusHistory[] @relation("AssignmentStatusChangedBy")
+  approvedPayments        Payment[]                 @relation("PaymentApprovedBy")
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        RoleType @unique
+  description String?
+  isDefault   Boolean  @default(false)
+
+  users       User[]
+  permissions RolePermission[]
+}
+
+model Permission {
+  id       String @id @default(uuid())
+  name     String @unique
+  resource String
+  action   String
+
+  roles RolePermission[]
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+}
+
+model CitizenProfile {
+  id               String  @id @default(uuid())
+  userId           String  @unique
+  defaultLatitude  Float?
+  defaultLongitude Float?
+  address          String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  reportedIssues Issue[]
+  feedback       Feedback[]
+  reviewsGiven   Review[]
+}
+
+model AdminProfile {
+  id         String  @id @default(uuid())
+  userId     String  @unique
+  department String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ManagerProfile {
+  id         String  @id @default(uuid())
+  userId     String  @unique
+  region     String?
+  department String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  assignedWorks WorkAssignment[]
+  appraisalsGiven WorkerAppraisal[]
+}
+
+model WorkerProfile {
+  id               String    @id @default(uuid())
+  userId           String    @unique
+  experienceYears  Int       @default(0)
+  hourlyRate       Decimal   @default(0.0)
+  rating           Decimal   @default(0.0)
+  isVerified       Boolean   @default(false)
+  verificationDate DateTime?
+  status           String    @default("AVAILABLE")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  skills       WorkerSkill[]
+  availability WorkerAvailability[]
+  location     WorkerLocation?
+
+  assignments         WorkAssignment[]
+  reviewsReceived     Review[]
+  payments            Payment[]
+  beforeVerifications BeforeWorkVerification[]
+  afterVerifications  AfterWorkVerification[]
+  appraisalsReceived  WorkerAppraisal[]
+}
+
+model WorkerSkill {
+  id          String  @id @default(uuid())
+  workerId    String
+  skillName   String
+  proficiency String?
+
+  worker WorkerProfile @relation(fields: [workerId], references: [id], onDelete: Cascade)
+}
+
+model WorkerAvailability {
+  id          String  @id @default(uuid())
+  workerId    String
+  dayOfWeek   Int
+  startTime   String
+  endTime     String
+  isAvailable Boolean @default(true)
+
+  worker WorkerProfile @relation(fields: [workerId], references: [id], onDelete: Cascade)
+}
+
+model WorkerLocation {
+  id          String   @id @default(uuid())
+  workerId    String   @unique
+  latitude    Float
+  longitude   Float
+  isOnline    Boolean  @default(false)
+  lastUpdated DateTime @default(now())
+
+  worker WorkerProfile @relation(fields: [workerId], references: [id], onDelete: Cascade)
+}
+
+model IssueCategory {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String?
+
+  issues Issue[]
+}
+
+model Issue {
+  id          String        @id @default(uuid())
+  reporterId  String
+  categoryId  String
+  title       String
+  description String
+  priority    IssuePriority @default(MEDIUM)
+  status      IssueStatus   @default(REPORTED)
+  latitude    Float
+  longitude   Float
+  address     String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  reporter CitizenProfile @relation(fields: [reporterId], references: [id])
+  category IssueCategory  @relation(fields: [categoryId], references: [id])
+
+  media         IssueMedia[]
+  statusHistory IssueStatusHistory[]
+  assignments   WorkAssignment[]
+  payments      Payment[]
+  feedback      Feedback[]
+  notifications Notification[]
+
+  @@index([status])
+  @@index([categoryId])
+  @@index([reporterId])
+  @@index([priority])
+  @@index([createdAt])
+}
+
+model IssueMedia {
+  id         String    @id @default(uuid())
+  issueId    String
+  url        String
+  type       MediaType
+  publicId   String?
+  metadata   Json?
+  uploadedAt DateTime  @default(now())
+
+  issue Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+}
+
+model IssueStatusHistory {
+  id          String      @id @default(uuid())
+  issueId     String
+  oldStatus   IssueStatus
+  newStatus   IssueStatus
+  changedById String
+  reason      String?
+  timestamp   DateTime    @default(now())
+
+  issue     Issue @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  changedBy User  @relation("IssueStatusChangedBy", fields: [changedById], references: [id])
+}
+
+model WorkAssignment {
+  id                     String           @id @default(uuid())
+  issueId                String
+  workerId               String
+  managerId              String
+  assignedRate           Decimal
+  assignedDate           DateTime         @default(now())
+  expectedCompletionDate DateTime?
+  status                 AssignmentStatus @default(PENDING)
+  notes                  String?
+
+  issue   Issue          @relation(fields: [issueId], references: [id])
+  worker  WorkerProfile  @relation(fields: [workerId], references: [id])
+  manager ManagerProfile @relation(fields: [managerId], references: [id])
+
+  statusHistory      AssignmentStatusHistory[]
+  beforeVerification BeforeWorkVerification?
+  afterVerification  AfterWorkVerification?
+  payments           Payment[]
+  notifications      Notification[]
+  progressRecords    WorkProgressRecord[]
+
+  @@index([issueId])
+  @@index([workerId])
+  @@index([managerId])
+  @@index([status])
+}
+
+model AssignmentStatusHistory {
+  id           String           @id @default(uuid())
+  assignmentId String
+  oldStatus    AssignmentStatus
+  newStatus    AssignmentStatus
+  changedById  String
+  reason       String?
+  timestamp    DateTime         @default(now())
+
+  assignment WorkAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  changedBy  User           @relation("AssignmentStatusChangedBy", fields: [changedById], references: [id])
+}
+
+model BeforeWorkVerification {
+  id            String             @id @default(uuid())
+  assignmentId  String             @unique
+  workerId      String
+  latitude      Float
+  longitude     Float
+  siteCondition String?
+  notes         String?
+  status        VerificationStatus @default(PENDING)
+  timestamp     DateTime           @default(now())
+
+  assignment WorkAssignment      @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  worker     WorkerProfile       @relation(fields: [workerId], references: [id])
+  media      VerificationMedia[]
+}
+
+model AfterWorkVerification {
+  id           String             @id @default(uuid())
+  assignmentId String             @unique
+  workerId     String
+  latitude     Float
+  longitude    Float
+  workSummary  String?
+  notes        String?
+  status       VerificationStatus @default(PENDING)
+  timestamp    DateTime           @default(now())
+
+  assignment WorkAssignment      @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  worker     WorkerProfile       @relation(fields: [workerId], references: [id])
+  media      VerificationMedia[]
+}
+
+model VerificationMedia {
+  id                   String    @id @default(uuid())
+  beforeVerificationId String?
+  afterVerificationId  String?
+  url                  String
+  type                 MediaType
+  publicId             String?
+  uploadedAt           DateTime  @default(now())
+
+  // Note: Enforce at application layer that either beforeVerificationId OR afterVerificationId is not null.
+  beforeVerification BeforeWorkVerification? @relation(fields: [beforeVerificationId], references: [id], onDelete: Cascade)
+  afterVerification  AfterWorkVerification?  @relation(fields: [afterVerificationId], references: [id], onDelete: Cascade)
+}
+
+model Payment {
+  id                   String        @id @default(uuid())
+  workerId             String
+  assignmentId         String
+  issueId              String
+  amount               Decimal
+  rate                 Decimal
+  status               PaymentStatus @default(PENDING)
+  approvedById         String?
+  gateway              String?
+  gatewayTransactionId String?
+  paidAt               DateTime?
+  failureReason        String?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  worker     WorkerProfile  @relation(fields: [workerId], references: [id])
+  assignment WorkAssignment @relation(fields: [assignmentId], references: [id])
+  issue      Issue          @relation(fields: [issueId], references: [id])
+  approvedBy User?          @relation("PaymentApprovedBy", fields: [approvedById], references: [id])
+
+  transactions PaymentTransaction[]
+
+  @@index([workerId])
+  @@index([assignmentId])
+  @@index([status])
+}
+
+model PaymentTransaction {
+  id              String   @id @default(uuid())
+  paymentId       String
+  gateway         String
+  transactionId   String
+  amount          Decimal
+  currency        String   @default("INR")
+  status          String
+  gatewayResponse Json?
+  timestamp       DateTime @default(now())
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  issueId    String   @unique
+  reviewerId String
+  revieweeId String
+  rating     Int
+  comment    String?
+  timestamp  DateTime @default(now())
+
+  citizen CitizenProfile @relation(fields: [reviewerId], references: [id])
+  worker  WorkerProfile  @relation(fields: [revieweeId], references: [id])
+}
+
+model Feedback {
+  id        String   @id @default(uuid())
+  issueId   String   @unique
+  citizenId String
+  rating    Int
+  comment   String?
+  timestamp DateTime @default(now())
+
+  issue   Issue          @relation(fields: [issueId], references: [id])
+  citizen CitizenProfile @relation(fields: [citizenId], references: [id])
+}
+
+model Notification {
+  id           String           @id @default(uuid())
+  userId       String
+  type         NotificationType
+  title        String
+  message      String
+  issueId      String?
+  assignmentId String?
+  appraisalId  String?
+  isRead       Boolean          @default(false)
+  timestamp    DateTime         @default(now())
+
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  issue      Issue?          @relation(fields: [issueId], references: [id], onDelete: SetNull)
+  assignment WorkAssignment? @relation(fields: [assignmentId], references: [id], onDelete: SetNull)
+  appraisal  WorkerAppraisal? @relation(fields: [appraisalId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([isRead])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String?
+  action     String
+  entityType String
+  entityId   String?
+  metadata   Json?
+  timestamp  DateTime @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([action])
+}
+
+model WorkProgressRecord {
+  id           String   @id @default(uuid())
+  assignmentId String
+  note         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  assignment WorkAssignment      @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  media      WorkProgressMedia[]
+
+  @@index([assignmentId])
+  @@index([createdAt])
+}
+
+model WorkProgressMedia {
+  id               String    @id @default(uuid())
+  progressRecordId String
+  url              String
+  publicId         String?
+  type             MediaType
+  format           String?
+  bytes            Int?
+  createdAt        DateTime  @default(now())
+
+  progressRecord WorkProgressRecord @relation(fields: [progressRecordId], references: [id], onDelete: Cascade)
+
+  @@index([progressRecordId])
+}
+
+model WorkerAppraisal {
+  id                    String          @id @default(uuid())
+  workerId              String
+  managerId             String
+  periodStart           DateTime
+  periodEnd             DateTime
+
+  overallRating         Int?
+  workQualityRating     Int?
+  timelinessRating      Int?
+  reliabilityRating     Int?
+  professionalismRating Int?
+  communicationRating   Int?
+
+  strengths             String?
+  areasForImprovement   String?
+  managerComments       String?
+  goalsAndRecommendations String?
+
+  status                AppraisalStatus @default(DRAFT)
+
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  submittedAt           DateTime?
+  acknowledgedAt        DateTime?
+
+  worker                WorkerProfile   @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  manager               ManagerProfile  @relation(fields: [managerId], references: [id])
+  notifications         Notification[]
+
+  @@index([workerId])
+  @@index([managerId])
+  @@index([periodStart])
+  @@index([periodEnd])
+  @@index([status])
+}
