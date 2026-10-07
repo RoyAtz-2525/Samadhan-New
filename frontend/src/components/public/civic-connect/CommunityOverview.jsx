@@ -27,38 +27,38 @@ const CommunityOverview = () => {
     {
       title: 'Resolved',
       icon: CheckCircle2,
-      color: 'text-green-600',
-      bgColor: 'bg-green-50',
-      borderColor: 'border-green-100'
+      color: 'text-teal-600',
+      bgColor: 'bg-teal-50',
+      borderColor: 'border-teal-100'
     }
   ];
 
   return (
-    <section className="py-12 bg-white border-y border-gray-100">
+    <section className="py-12 md:py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-extrabold text-slate-900 mb-4 tracking-tight">
             Community Overview
           </h2>
-          <p className="text-gray-600">
-            A snapshot of civic issues across all categories in the system.
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            A real-time snapshot of civic issues across all categories in the system.
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {metrics.map((metric, index) => (
-            <div key={index} className={`rounded-2xl border ${metric.borderColor} p-6 ${metric.bgColor} flex flex-col items-center justify-center text-center`}>
-              <div className={`${metric.color} mb-4`}>
-                <metric.icon className="h-8 w-8" />
+            <div key={index} className={"rounded-3xl border " + metric.borderColor + " p-8 " + metric.bgColor + " flex flex-col items-center justify-center text-center transition-all hover:-translate-y-1 hover:shadow-lg"}>
+              <div className={"h-16 w-16 rounded-2xl bg-white flex items-center justify-center shadow-sm mb-6 " + metric.color}>
+                <metric.icon className="h-8 w-8" strokeWidth={1.5} />
               </div>
-              <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-2">
+              <h3 className="text-sm font-bold text-slate-700 uppercase tracking-widest mb-3">
                 {metric.title}
               </h3>
               {/* API-ready placeholder state */}
-              <div className="text-2xl font-bold text-gray-900 opacity-50 flex items-center justify-center h-10">
-                —
+              <div className="text-4xl font-extrabold text-slate-900 opacity-20 flex items-center justify-center">
+                ?"
               </div>
-              <p className="text-xs text-gray-500 mt-2">Data will appear here</p>
+              <p className="text-sm font-medium text-slate-500 mt-4 bg-white/50 px-3 py-1 rounded-full">Pending Data</p>
             </div>
           ))}
         </div>

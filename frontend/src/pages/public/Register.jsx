@@ -1,270 +1,481 @@
-import React, { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, Loader2, MapPin, Building, Users, User, Phone, CheckCircle2, Wrench } from 'lucide-react';
+import React, { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
+import { useNavigate, Link, useLocation } from "react-router-dom";
+import {
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  Loader2,
+  Users,
+  User,
+  Phone,
+  CheckCircle2,
+  Wrench,
+  ArrowRight,
+  ShieldCheck,
+} from "lucide-react";
 
 const Register = () => {
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', password: '', role: 'CITIZEN' });
-  const [error, setError] = useState('');
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    role: "CITIZEN",
+  });
+
+  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const { registerCitizen, registerWorker } = useAuth();
+
   const navigate = useNavigate();
   const location = useLocation();
+
   const from = location.state?.from;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     setIsLoading(true);
-    setError('');
-    
+    setError("");
+
     try {
-      if (formData.role === 'CITIZEN') {
+      if (formData.role === "CITIZEN") {
         await registerCitizen(formData);
       } else {
         await registerWorker(formData);
       }
-      navigate('/login', { state: { from } });
+
+      navigate("/login", { state: { from } });
     } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed. Please check your information and try again.');
+      setError(
+        err.response?.data?.error ||
+          "Registration failed. Please check your information and try again.",
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
+  const inputClass =
+    "block w-full rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] py-2.5 pl-10 pr-3 text-sm text-[#0F172A] outline-none transition-all duration-200 placeholder:text-[#94A3B8] focus:border-[#3B82F6] focus:bg-white focus:ring-2 focus:ring-[#3B82F6]/15 disabled:cursor-not-allowed disabled:opacity-60";
+
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-[#F5F7FA] font-sans">
-      
-      {/* Left Brand Panel - Hidden on Mobile */}
-      <div className="hidden md:flex md:w-[45%] lg:w-[40%] bg-[#0B1F3A] flex-col relative overflow-hidden">
-        {/* Decorative elements */}
-        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-80 h-80 bg-[#0F9D8A] rounded-full opacity-10 blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-80 h-80 bg-[#3B82F6] rounded-full opacity-10 blur-3xl"></div>
-        
-        {/* Subtle grid pattern */}
-        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
-        
-        <div className="relative z-10 flex flex-col h-full p-12">
-          <div>
-            <Link to="/">
-              <img src="/logo.png" alt="SAMADHAN Logo" className="h-10 brightness-0 invert mb-12" />
-            </Link>
-            <h1 className="text-4xl lg:text-5xl font-bold text-white leading-tight tracking-tight mb-6">
-              Join Your<br />
-              <span className="text-[#0F9D8A]">Community</span>
-            </h1>
-            <p className="text-slate-300 text-lg leading-relaxed max-w-sm">
-              Create an account to report issues, track resolutions, or contribute as a civic worker.
-            </p>
-          </div>
-          
-          <div className="mt-auto space-y-8">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-sm border border-white/5">
-                <CheckCircle2 className="text-[#0F9D8A] w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-white font-semibold">Verified Actions</h3>
-                <p className="text-slate-400 text-sm">Secure and transparent process</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-sm border border-white/5">
-                <Users className="text-[#3B82F6] w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-white font-semibold">Civic Network</h3>
-                <p className="text-slate-400 text-sm">Connect with local administration</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="h-screen overflow-hidden bg-[#F5F7FA] font-sans">
+      <div className="flex h-full w-full">
+        {/* =====================================================
+            LEFT BRAND PANEL
+        ===================================================== */}
+        <div className="relative hidden h-full w-[38%] overflow-hidden bg-[#0B1F3A] lg:flex xl:w-[40%]">
+          {/* Background decoration */}
+          <div className="absolute -right-28 -top-28 h-80 w-80 rounded-full bg-[#0F9D8A]/10 blur-3xl" />
 
-      {/* Right Auth Panel */}
-      <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-12 overflow-y-auto">
-        
-        {/* Mobile Header */}
-        <div className="md:hidden w-full max-w-md mb-6 flex justify-center">
-          <Link to="/">
-            <img src="/logo.png" alt="SAMADHAN Logo" className="h-10" />
-          </Link>
-        </div>
+          <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-[#3B82F6]/10 blur-3xl" />
 
-        <div className="w-full max-w-xl bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-[#E2E8F0] p-8 sm:p-10 my-auto">
-          
-          <div className="mb-8 text-center">
-            <h2 className="text-2xl font-bold text-[#0F172A] tracking-tight mb-2">Create Your Account</h2>
-            <p className="text-[#64748B] text-sm">Join SAMADHAN and help make your community better.</p>
-          </div>
+          {/* Grid */}
+          <div
+            className="absolute inset-0 opacity-[0.035]"
+            style={{
+              backgroundImage: "radial-gradient(#ffffff 1px, transparent 1px)",
+              backgroundSize: "28px 28px",
+            }}
+          />
 
-          {error && (
-            <div className="mb-6 bg-red-50 border border-red-100 text-[#DC2626] px-4 py-3 rounded-xl text-sm flex items-start animate-in fade-in slide-in-from-top-2 duration-200">
-              <svg className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>{error}</span>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            
-            {/* Role Selection */}
-            <div className="space-y-3 mb-6">
-              <label className="block text-sm font-semibold text-[#0F172A]">I want to register as a:</label>
-              <div className="grid grid-cols-2 gap-4">
-                <button
-                  type="button"
-                  onClick={() => setFormData({...formData, role: 'CITIZEN'})}
-                  className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all duration-200 ${
-                    formData.role === 'CITIZEN' 
-                      ? 'border-[#0B1F3A] bg-slate-50' 
-                      : 'border-[#E2E8F0] hover:border-[#CBD5E1] bg-white'
-                  }`}
-                >
-                  <div className={`p-2 rounded-full mb-2 ${formData.role === 'CITIZEN' ? 'bg-[#0B1F3A] text-white' : 'bg-slate-100 text-[#64748B]'}`}>
-                    <User size={20} />
-                  </div>
-                  <span className={`font-semibold ${formData.role === 'CITIZEN' ? 'text-[#0B1F3A]' : 'text-[#64748B]'}`}>Citizen</span>
-                  <span className="text-xs text-center text-slate-500 mt-1">Report civic issues</span>
-                </button>
-                
-                <button
-                  type="button"
-                  onClick={() => setFormData({...formData, role: 'WORKER'})}
-                  className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all duration-200 ${
-                    formData.role === 'WORKER' 
-                      ? 'border-[#0F9D8A] bg-teal-50/30' 
-                      : 'border-[#E2E8F0] hover:border-[#CBD5E1] bg-white'
-                  }`}
-                >
-                  <div className={`p-2 rounded-full mb-2 ${formData.role === 'WORKER' ? 'bg-[#0F9D8A] text-white' : 'bg-slate-100 text-[#64748B]'}`}>
-                    <Wrench size={20} />
-                  </div>
-                  <span className={`font-semibold ${formData.role === 'WORKER' ? 'text-[#0F9D8A]' : 'text-[#64748B]'}`}>Worker</span>
-                  <span className="text-xs text-center text-slate-500 mt-1">Resolve assignments</span>
-                </button>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div className="space-y-1">
-                <label className="block text-sm font-semibold text-[#0F172A]">Full Name</label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                    <User className="h-5 w-5 text-[#64748B] group-focus-within:text-[#3B82F6] transition-colors" />
-                  </div>
-                  <input 
-                    type="text" 
-                    placeholder="John Doe"
-                    className="block w-full pl-11 pr-4 py-3 border border-[#E2E8F0] rounded-xl text-sm bg-slate-50 focus:bg-white focus:ring-2 focus:ring-[#3B82F6]/20 focus:border-[#3B82F6] transition-all duration-200 outline-none text-[#0F172A]"
-                    value={formData.name} 
-                    onChange={e => setFormData({...formData, name: e.target.value})}
-                    required
-                    disabled={isLoading}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-sm font-semibold text-[#0F172A]">Phone Number <span className="text-slate-400 font-normal">(Optional)</span></label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                    <Phone className="h-5 w-5 text-[#64748B] group-focus-within:text-[#3B82F6] transition-colors" />
-                  </div>
-                  <input 
-                    type="tel" 
-                    placeholder="+91 98765 43210"
-                    className="block w-full pl-11 pr-4 py-3 border border-[#E2E8F0] rounded-xl text-sm bg-slate-50 focus:bg-white focus:ring-2 focus:ring-[#3B82F6]/20 focus:border-[#3B82F6] transition-all duration-200 outline-none text-[#0F172A]"
-                    value={formData.phone} 
-                    onChange={e => setFormData({...formData, phone: e.target.value})}
-                    disabled={isLoading}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label className="block text-sm font-semibold text-[#0F172A]">Email Address</label>
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-[#64748B] group-focus-within:text-[#3B82F6] transition-colors" />
-                </div>
-                <input 
-                  type="email" 
-                  placeholder="name@example.com"
-                  className="block w-full pl-11 pr-4 py-3 border border-[#E2E8F0] rounded-xl text-sm bg-slate-50 focus:bg-white focus:ring-2 focus:ring-[#3B82F6]/20 focus:border-[#3B82F6] transition-all duration-200 outline-none text-[#0F172A]"
-                  value={formData.email} 
-                  onChange={e => setFormData({...formData, email: e.target.value})}
-                  required
-                  disabled={isLoading}
+          <div className="relative z-10 flex h-full w-full flex-col justify-between p-8 xl:p-10">
+            {/* Logo */}
+            <div>
+              <Link
+                to="/"
+                className="inline-flex rounded-lg outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-[#3B82F6] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B1F3A]"
+              >
+                <img
+                  src="/logo.png"
+                  alt="SAMADHAN Logo"
+                  className="h-12 w-auto brightness-0 invert"
                 />
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label className="block text-sm font-semibold text-[#0F172A]">Password</label>
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-[#64748B] group-focus-within:text-[#3B82F6] transition-colors" />
-                </div>
-                <input 
-                  type={showPassword ? "text" : "password"} 
-                  placeholder="At least 6 characters"
-                  className="block w-full pl-11 pr-11 py-3 border border-[#E2E8F0] rounded-xl text-sm bg-slate-50 focus:bg-white focus:ring-2 focus:ring-[#3B82F6]/20 focus:border-[#3B82F6] transition-all duration-200 outline-none text-[#0F172A]"
-                  value={formData.password} 
-                  onChange={e => setFormData({...formData, password: e.target.value})}
-                  required
-                  minLength={6}
-                  disabled={isLoading}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#64748B] hover:text-[#0F172A] transition-colors focus:outline-none"
-                  disabled={isLoading}
-                >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                </button>
-              </div>
-            </div>
-
-            <button 
-              type="submit" 
-              disabled={isLoading}
-              className="w-full bg-[#0B1F3A] hover:bg-[#12345B] text-white py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center shadow-lg shadow-slate-200 mt-4 disabled:opacity-70 disabled:cursor-not-allowed group relative overflow-hidden"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" />
-                  Creating Account...
-                </>
-              ) : (
-                'Create Account'
-              )}
-              {/* Subtle hover effect */}
-              <div className="absolute inset-0 h-full w-full opacity-0 group-hover:opacity-10 bg-gradient-to-r from-transparent via-white to-transparent -translate-x-full group-hover:translate-x-full transition-all duration-700 ease-out"></div>
-            </button>
-          </form>
-
-          <div className="mt-8 text-center">
-            <p className="text-sm text-[#64748B]">
-              Already have an account?{' '}
-              <Link to="/login" state={{ from }} className="font-semibold text-[#0F9D8A] hover:text-[#0B7A6A] hover:underline transition-colors">
-                Sign in
               </Link>
+            </div>
+
+            {/* Main Brand Content */}
+            <div className="max-w-md">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+                <ShieldCheck size={14} className="text-[#0F9D8A]" />
+
+                <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-300">
+                  Civic Issue Resolution
+                </span>
+              </div>
+
+              <h1 className="text-4xl font-extrabold leading-[1.05] tracking-tight text-white xl:text-5xl">
+                Join Your
+                <br />
+                <span className="text-[#0F9D8A]">Community</span>
+              </h1>
+
+              <p className="mt-4 max-w-sm text-sm leading-6 text-slate-300 xl:text-base">
+                Create an account to report civic issues, track resolutions, or
+                contribute as a civic worker.
+              </p>
+            </div>
+
+            {/* Benefits */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10">
+                  <CheckCircle2 size={17} className="text-[#0F9D8A]" />
+                </div>
+
+                <div>
+                  <p className="text-sm font-semibold text-white">
+                    Verified Actions
+                  </p>
+
+                  <p className="text-xs text-slate-400">
+                    Secure and transparent process
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10">
+                  <Users size={17} className="text-[#3B82F6]" />
+                </div>
+
+                <div>
+                  <p className="text-sm font-semibold text-white">
+                    Civic Network
+                  </p>
+
+                  <p className="text-xs text-slate-400">
+                    Connect with local administration
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Copyright */}
+            <p className="text-[10px] text-slate-500">
+              © {new Date().getFullYear()} SAMADHAN Platform
             </p>
           </div>
-          
         </div>
-        
-        {/* Footer */}
-        <p className="mt-8 text-xs text-[#64748B] text-center shrink-0">
-          &copy; {new Date().getFullYear()} SAMADHAN Platform. All rights reserved.
-        </p>
+
+        {/* =====================================================
+            RIGHT REGISTER PANEL
+        ===================================================== */}
+        <div className="flex h-full min-w-0 flex-1 items-center justify-center overflow-hidden px-4 py-4 sm:px-6 lg:px-8">
+          <div className="w-full max-w-lg">
+            {/* Mobile Logo */}
+            <div className="mb-3 flex justify-center lg:hidden">
+              <Link to="/">
+                <img
+                  src="/logo.png"
+                  alt="SAMADHAN Logo"
+                  className="h-11 w-auto"
+                />
+              </Link>
+            </div>
+
+            {/* Register Card */}
+            <div className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-[0_12px_40px_rgba(15,23,42,0.08)] sm:p-6">
+              {/* Header */}
+              <div className="mb-4 text-center">
+                <h2 className="text-xl font-bold tracking-tight text-[#0F172A] sm:text-2xl">
+                  Create Your Account
+                </h2>
+
+                <p className="mt-1 text-xs text-[#64748B] sm:text-sm">
+                  Join SAMADHAN and help make your community better.
+                </p>
+              </div>
+
+              {/* Error */}
+              {error && (
+                <div className="mb-4 flex items-start gap-2 rounded-lg border border-red-100 bg-red-50 px-3 py-2.5 text-xs text-[#DC2626]">
+                  <span className="mt-0.5">⚠</span>
+                  <span>{error}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit}>
+                {/* Role Selection */}
+                <div className="mb-4">
+                  <label className="mb-2 block text-xs font-semibold text-[#0F172A]">
+                    I want to register as
+                  </label>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* Citizen */}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormData({
+                          ...formData,
+                          role: "CITIZEN",
+                        })
+                      }
+                      disabled={isLoading}
+                      className={`group flex items-center gap-3 rounded-xl border p-3 text-left transition-all duration-200 ${
+                        formData.role === "CITIZEN"
+                          ? "border-[#0B1F3A] bg-[#F5F7FA] shadow-sm"
+                          : "border-[#E2E8F0] bg-white hover:border-[#CBD5E1] hover:bg-[#F8FAFC]"
+                      }`}
+                    >
+                      <div
+                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
+                          formData.role === "CITIZEN"
+                            ? "bg-[#0B1F3A] text-white"
+                            : "bg-[#F1F5F9] text-[#64748B]"
+                        }`}
+                      >
+                        <User size={17} />
+                      </div>
+
+                      <div>
+                        <p
+                          className={`text-xs font-bold ${
+                            formData.role === "CITIZEN"
+                              ? "text-[#0B1F3A]"
+                              : "text-[#334155]"
+                          }`}
+                        >
+                          Citizen
+                        </p>
+
+                        <p className="mt-0.5 text-[10px] text-[#64748B]">
+                          Report civic issues
+                        </p>
+                      </div>
+                    </button>
+
+                    {/* Worker */}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormData({
+                          ...formData,
+                          role: "WORKER",
+                        })
+                      }
+                      disabled={isLoading}
+                      className={`group flex items-center gap-3 rounded-xl border p-3 text-left transition-all duration-200 ${
+                        formData.role === "WORKER"
+                          ? "border-[#0F9D8A] bg-[#EAF7F5]/50 shadow-sm"
+                          : "border-[#E2E8F0] bg-white hover:border-[#CBD5E1] hover:bg-[#F8FAFC]"
+                      }`}
+                    >
+                      <div
+                        className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
+                          formData.role === "WORKER"
+                            ? "bg-[#0F9D8A] text-white"
+                            : "bg-[#F1F5F9] text-[#64748B]"
+                        }`}
+                      >
+                        <Wrench size={17} />
+                      </div>
+
+                      <div>
+                        <p
+                          className={`text-xs font-bold ${
+                            formData.role === "WORKER"
+                              ? "text-[#0F9D8A]"
+                              : "text-[#334155]"
+                          }`}
+                        >
+                          Worker
+                        </p>
+
+                        <p className="mt-0.5 text-[10px] text-[#64748B]">
+                          Resolve assignments
+                        </p>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Name + Phone */}
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Name */}
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold text-[#0F172A]">
+                      Full Name
+                    </label>
+
+                    <div className="relative">
+                      <User
+                        size={16}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B]"
+                      />
+
+                      <input
+                        type="text"
+                        placeholder="John Doe"
+                        className={inputClass}
+                        value={formData.name}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            name: e.target.value,
+                          })
+                        }
+                        required
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Phone */}
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold text-[#0F172A]">
+                      Phone{" "}
+                      <span className="font-normal text-[#94A3B8]">
+                        (Optional)
+                      </span>
+                    </label>
+
+                    <div className="relative">
+                      <Phone
+                        size={16}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B]"
+                      />
+
+                      <input
+                        type="tel"
+                        placeholder="+91 98765 43210"
+                        className={inputClass}
+                        value={formData.phone}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            phone: e.target.value,
+                          })
+                        }
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Email */}
+                <div className="mt-3">
+                  <label className="mb-1.5 block text-xs font-semibold text-[#0F172A]">
+                    Email Address
+                  </label>
+
+                  <div className="relative">
+                    <Mail
+                      size={16}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B]"
+                    />
+
+                    <input
+                      type="email"
+                      placeholder="name@example.com"
+                      className={inputClass}
+                      value={formData.email}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          email: e.target.value,
+                        })
+                      }
+                      required
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+
+                {/* Password */}
+                <div className="mt-3">
+                  <label className="mb-1.5 block text-xs font-semibold text-[#0F172A]">
+                    Password
+                  </label>
+
+                  <div className="relative">
+                    <Lock
+                      size={16}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B]"
+                    />
+
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="At least 6 characters"
+                      className={`${inputClass} pr-10`}
+                      value={formData.password}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          password: e.target.value,
+                        })
+                      }
+                      required
+                      minLength={6}
+                      disabled={isLoading}
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      disabled={isLoading}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] transition-colors hover:text-[#0F172A]"
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
+                    >
+                      {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Submit */}
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="group mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-[#0B1F3A] px-4 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:bg-[#12345B] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 size={17} className="animate-spin" />
+                      Creating Account...
+                    </>
+                  ) : (
+                    <>
+                      Create Account
+                      <ArrowRight
+                        size={16}
+                        className="transition-transform duration-200 group-hover:translate-x-0.5"
+                      />
+                    </>
+                  )}
+                </button>
+              </form>
+
+              {/* Login */}
+              <div className="mt-4 border-t border-[#E2E8F0] pt-4 text-center">
+                <p className="text-xs text-[#64748B] sm:text-sm">
+                  Already have an account?{" "}
+                  <Link
+                    to="/login"
+                    state={{ from }}
+                    className="font-semibold text-[#0F9D8A] transition-colors hover:text-[#0B7A6A]"
+                  >
+                    Sign in
+                  </Link>
+                </p>
+              </div>
+            </div>
+
+            {/* Mobile copyright */}
+            <p className="mt-3 text-center text-[10px] text-[#94A3B8] lg:hidden">
+              © {new Date().getFullYear()} SAMADHAN Platform. All rights
+              reserved.
+            </p>
+          </div>
+        </div>
       </div>
-      
     </div>
   );
 };
