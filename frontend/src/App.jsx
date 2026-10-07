@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './routes/ProtectedRoute';
 import RoleRoute from './routes/RoleRoute';
@@ -139,9 +140,38 @@ function App() {
           {/* Catch-all 404 Route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <Toaster 
+          position="top-right" 
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: '#0B1F3A',
+              color: '#fff',
+              borderRadius: '16px',
+              padding: '16px',
+              fontSize: '14px',
+              fontWeight: '500',
+              boxShadow: '0 10px 15px -3px rgba(11, 31, 58, 0.1), 0 4px 6px -2px rgba(11, 31, 58, 0.05)'
+            },
+            success: {
+              iconTheme: {
+                primary: '#0F9D8A',
+                secondary: '#fff',
+              },
+            },
+            error: {
+              iconTheme: {
+                primary: '#EF4444',
+                secondary: '#fff',
+              },
+            },
+          }} 
+        />
       </AuthProvider>
     </Router>
   );
 }
 
 export default App;
+
+

@@ -26,29 +26,34 @@ const ExceptionFlow = () => {
   ];
 
   return (
-    <section className="py-16 sm:py-24 bg-white border-t border-gray-100">
+    <section className="py-12 md:py-20 bg-slate-50 border-t border-slate-100">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-center space-x-3 mb-12">
-          <AlertTriangle className="h-8 w-8 text-orange-500" />
-          <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl">
-            If Something Needs Correction
+        <div className="flex items-center space-x-4 mb-8">
+          <div className="bg-red-100 p-3 rounded-xl text-red-600">
+             <AlertTriangle className="h-6 w-6" />
+          </div>
+          <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+            Exception Handling
           </h2>
         </div>
         
-        <p className="text-center text-lg text-gray-600 mb-12 max-w-2xl mx-auto">
-          The workflow can seamlessly handle unsuccessful stages. Depending on the stage, the item may be rejected, sent back for revision, or require further action.
+        <p className="text-lg text-slate-600 mb-12 max-w-2xl">
+          The workflow gracefully handles unsuccessful stages. Depending on the step, an item may be rejected, sent back for revision, or require further action.
         </p>
 
-        <div className="space-y-4">
+        <div className="space-y-4 relative">
+          {/* Vertical line indicator */}
+          <div className="absolute left-[2.25rem] top-8 bottom-8 w-px bg-slate-200 hidden sm:block"></div>
+          
           {exceptions.map((ex, idx) => (
-            <div key={idx} className="flex flex-col sm:flex-row items-start sm:items-center bg-gray-50 p-6 rounded-xl border border-gray-200">
-              <div className="w-full sm:w-1/2 font-bold text-gray-900 text-lg mb-2 sm:mb-0">
+            <div key={idx} className="relative flex flex-col sm:flex-row items-start sm:items-center bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow group">
+              <div className="w-full sm:w-1/2 font-bold text-slate-900 text-lg mb-2 sm:mb-0 relative z-10">
                 {ex.title}
               </div>
-              <div className="hidden sm:flex items-center justify-center w-12 text-gray-400">
+              <div className="hidden sm:flex items-center justify-center w-12 text-slate-300 group-hover:text-red-400 transition-colors z-10 bg-white">
                 <CornerDownRight className="h-6 w-6" />
               </div>
-              <div className="w-full sm:w-1/2 text-gray-600 sm:pl-4 border-l-0 sm:border-l-2 border-gray-200 pt-2 sm:pt-0">
+              <div className="w-full sm:w-1/2 text-slate-600 sm:pl-4 sm:border-l-0 pt-2 sm:pt-0 z-10">
                 {ex.result}
               </div>
             </div>

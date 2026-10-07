@@ -5,96 +5,89 @@ const CompleteJourney = () => {
   const journeySteps = [
     {
       id: 1,
-      title: "Citizen Reports",
       role: "CITIZEN",
-      action: "Citizen provides issue category, description, location, and photo/video evidence where applicable. The report enters the civic workflow.",
-      result: "Issue state changes to REPORTED"
+      title: "Report the Issue",
+      action: "A citizen uses the platform to upload photos, location, and details of a civic issue.",
+      result: "Issue Status: REPORTED"
     },
     {
       id: 2,
-      title: "Admin Reviews",
       role: "ADMIN",
-      action: "Admin reviews the submitted issue. Admin can approve, reject, or prioritize. If rejected, the reason is recorded. Admin does NOT assign workers.",
-      result: "Issue state changes to UNDER_REVIEW"
+      title: "Review & Approve",
+      action: "Admin verifies the report, ensures it's valid and within scope, and approves it for action.",
+      result: "Issue Status: APPROVED"
     },
     {
       id: 3,
-      title: "Issue Approved",
-      role: "ADMIN",
-      action: "Admin approves the issue, making it available for manager coordination.",
-      result: "Issue state changes to APPROVED"
+      role: "MANAGER",
+      title: "Assign Worker",
+      action: "Manager reviews approved issues and assigns them to an appropriate verified worker.",
+      result: "Issue Status: ASSIGNED"
     },
     {
       id: 4,
-      title: "Manager Assigns Worker",
-      role: "MANAGER",
-      action: "Manager reviews issue details, worker availability, relevant skills, and assignment suitability. Manager assigns an appropriate worker.",
-      result: "Issue state changes to ASSIGNED"
+      role: "WORKER",
+      title: "Accept & Provide Quote",
+      action: "Worker receives the assignment, reviews the problem, and may provide a cost estimate.",
+      result: "Assignment Status: ACCEPTED"
     },
     {
       id: 5,
-      title: "Worker Accepts",
-      role: "WORKER",
-      action: "Worker reviews the assignment and can accept or reject it. If rejected, it does not become active work.",
-      result: "Assignment state changes to ACCEPTED"
+      role: "MANAGER",
+      title: "Verify Before-Work",
+      action: "Manager verifies the worker's initial assessment or quote before authorizing work to start.",
+      result: "Issue Status: WORK STARTED"
     },
     {
       id: 6,
-      title: "Before-Work Verification",
-      role: "WORKER / MANAGER",
-      action: "Worker submits location verification and evidence. Manager reviews it. Only approved verification allows work to begin.",
-      result: "Issue state changes to WORK_STARTED"
+      role: "WORKER",
+      title: "Execute Work",
+      action: "Worker performs the physical labor. Once done, they upload 'after' photos as proof.",
+      result: "Issue Status: WORK COMPLETED"
     },
     {
       id: 7,
-      title: "Work Execution",
-      role: "WORKER",
-      action: "Worker performs the assigned work, submits progress updates, notes, and media, then completes the assignment with completion evidence.",
-      result: "Issue state changes to WORK_COMPLETED"
+      role: "MANAGER",
+      title: "Verify Completion",
+      action: "Manager reviews the 'after' photos and field report to ensure quality standards are met.",
+      result: "Issue Status: UNDER VERIFICATION"
     },
     {
       id: 8,
-      title: "After-Work Verification",
-      role: "WORKER / MANAGER",
-      action: "Worker submits work summary, location, and completion evidence. Manager reviews the result and can approve, reject, or request revision.",
-      result: "Issue state changes to UNDER_VERIFICATION"
+      role: "ADMIN / SYSTEM",
+      title: "Final Resolution",
+      action: "Admin performs a final review (if required) or system automatically marks it resolved upon manager verification.",
+      result: "Issue Status: RESOLVED"
     },
     {
       id: 9,
-      title: "Issue Resolved",
-      role: "SYSTEM / MANAGER",
-      action: "When after-work verification is approved, the issue is formally closed. This is the actual resolution point.",
-      result: "Issue state changes to RESOLVED"
+      role: "ADMIN",
+      title: "Payment Release",
+      action: "Admin triggers payment processing to the worker through the platform.",
+      result: "Payment Status: PROCESSED"
     },
     {
       id: 10,
-      title: "Worker Payment",
-      role: "MANAGER",
-      action: "Manager pays the worker for eligible completed work through the platform's payment workflow. Payment amount is based on the assigned work rate.",
-      result: "Payment is processed (Post-resolution operational step)"
-    },
-    {
-      id: 11,
-      title: "Citizen Feedback",
       role: "CITIZEN",
-      action: "The citizen can provide feedback/review after the issue has reached the appropriate completed/resolved stage.",
-      result: "Feedback recorded (Does not change issue status)"
+      title: "Feedback Loop",
+      action: "Citizen is notified of the resolution and asked to provide feedback and a rating.",
+      result: "Issue Lifecycle: CLOSED"
     }
   ];
 
   return (
-    <section className="py-16 sm:py-24 bg-gray-50">
+    <section className="py-16 md:py-24 bg-slate-50 relative">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl mb-4">
+        <div className="text-center mb-20">
+          <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">
             The Complete Journey
           </h2>
-          <p className="text-lg text-gray-600">
-            A detailed look at how responsibility moves through the workflow.
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            A step-by-step breakdown of how an issue flows through the SAMADHAN platform.
           </p>
         </div>
 
-        <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-gray-300 before:to-transparent">
+        <div className="space-y-12 relative before:absolute before:inset-0 before:ml-5 md:before:ml-1/2 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-1 before:bg-gradient-to-b before:from-teal-100 before:via-blue-200 before:to-transparent">
           {journeySteps.map((step, index) => (
             <WorkflowStep key={step.id} step={step} isLeft={index % 2 === 0} />
           ))}

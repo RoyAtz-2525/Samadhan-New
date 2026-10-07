@@ -37,22 +37,22 @@ const ManagerDashboard = () => {
 
   const getStatusColor = (status) => {
     const colors = {
-      'REPORTED': 'bg-blue-100 text-blue-800 border-blue-200',
-      'UNDER_REVIEW': 'bg-amber-100 text-amber-800 border-amber-200',
-      'APPROVED': 'bg-teal-100 text-teal-800 border-teal-200',
-      'REJECTED': 'bg-red-100 text-red-800 border-red-200',
-      'ASSIGNED': 'bg-purple-100 text-purple-800 border-purple-200',
-      'ACCEPTED': 'bg-indigo-100 text-indigo-800 border-indigo-200',
-      'IN_PROGRESS': 'bg-cyan-100 text-cyan-800 border-cyan-200',
-      'WORK_STARTED': 'bg-cyan-100 text-cyan-800 border-cyan-200',
-      'COMPLETED': 'bg-teal-100 text-teal-800 border-teal-200',
-      'WORK_COMPLETED': 'bg-teal-100 text-teal-800 border-teal-200',
-      'UNDER_VERIFICATION': 'bg-amber-100 text-amber-800 border-amber-200',
-      'RESOLVED': 'bg-green-100 text-green-800 border-green-200',
-      'CANCELLED': 'bg-slate-100 text-slate-800 border-slate-200',
-      'PENDING': 'bg-amber-100 text-amber-800 border-amber-200'
+      'REPORTED': 'bg-blue-500/10 text-blue-700 border-blue-500/20',
+      'UNDER_REVIEW': 'bg-amber-500/10 text-amber-700 border-amber-500/20',
+      'APPROVED': 'bg-teal-500/10 text-teal-700 border-teal-500/20',
+      'REJECTED': 'bg-red-500/10 text-red-700 border-red-500/20',
+      'ASSIGNED': 'bg-purple-500/10 text-purple-700 border-purple-500/20',
+      'ACCEPTED': 'bg-indigo-500/10 text-indigo-700 border-indigo-500/20',
+      'IN_PROGRESS': 'bg-cyan-500/10 text-cyan-700 border-cyan-500/20',
+      'WORK_STARTED': 'bg-cyan-500/10 text-cyan-700 border-cyan-500/20',
+      'COMPLETED': 'bg-teal-500/10 text-teal-700 border-teal-500/20',
+      'WORK_COMPLETED': 'bg-teal-500/10 text-teal-700 border-teal-500/20',
+      'UNDER_VERIFICATION': 'bg-amber-500/10 text-amber-700 border-amber-500/20',
+      'RESOLVED': 'bg-green-500/10 text-green-700 border-green-500/20',
+      'CANCELLED': 'bg-slate-500/10 text-slate-700 border-slate-500/20',
+      'PENDING': 'bg-amber-500/10 text-amber-700 border-amber-500/20'
     };
-    return colors[status] || 'bg-gray-100 text-gray-800 border-gray-200';
+    return colors[status] || 'bg-gray-500/10 text-gray-700 border-gray-500/20';
   };
 
   const getStatusLabel = (status) => {
@@ -61,16 +61,16 @@ const ManagerDashboard = () => {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="h-32 bg-gray-200 rounded-2xl animate-pulse"></div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="max-w-7xl mx-auto space-y-8 pb-12">
+        <div className="h-64 bg-slate-100 rounded-3xl animate-pulse"></div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-28 bg-gray-200 rounded-2xl animate-pulse"></div>
+            <div key={i} className="h-36 bg-slate-100 rounded-3xl animate-pulse"></div>
           ))}
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 h-96 bg-gray-200 rounded-2xl animate-pulse"></div>
-          <div className="h-96 bg-gray-200 rounded-2xl animate-pulse"></div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 h-96 bg-slate-100 rounded-3xl animate-pulse"></div>
+          <div className="h-96 bg-slate-100 rounded-3xl animate-pulse"></div>
         </div>
       </div>
     );
@@ -78,15 +78,15 @@ const ManagerDashboard = () => {
 
   if (error) {
     return (
-      <div className="max-w-7xl mx-auto bg-red-50 border border-red-200 rounded-2xl p-6 text-center">
-        <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-red-800 mb-2">Error Loading Dashboard</h3>
-        <p className="text-red-600">{error}</p>
+      <div className="max-w-7xl mx-auto bg-red-50 border border-red-200 rounded-3xl p-8 text-center shadow-sm">
+        <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+        <h3 className="text-xl font-extrabold text-red-800 mb-2">Error Loading Dashboard</h3>
+        <p className="text-red-600 font-medium">{error}</p>
         <button 
           onClick={() => window.location.reload()} 
-          className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          className="mt-6 px-6 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors shadow-md"
         >
-          Retry
+          Retry Connection
         </button>
       </div>
     );
@@ -95,44 +95,61 @@ const ManagerDashboard = () => {
   return (
     <div className="max-w-7xl mx-auto space-y-8 pb-12">
       {/* Welcome Hero */}
-      <div className="bg-[#0B1F3A] rounded-2xl overflow-hidden relative shadow-lg">
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
-        <div className="px-8 py-10 relative z-10 flex flex-col md:flex-row items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
-              Good Morning, {user?.name || 'Manager'} 👋
+      <div className="bg-[#0B1F3A] rounded-3xl overflow-hidden relative shadow-2xl border border-[#1e293b]">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djIwaC0ydi0yMGgtMjB2LTJoMjB2LTIwaDJ2MjBoMjB2MmgtMjB6Ii8+PC9nPjwvZz48L3N2Zz4=')]"></div>
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-teal-500/20 rounded-full blur-[120px] pointer-events-none -translate-y-1/2 translate-x-1/3"></div>
+        
+        <div className="px-8 md:px-12 py-12 relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center space-x-2 bg-white/5 border border-white/10 px-4 py-2 rounded-full text-sm font-medium text-teal-300 mb-6 backdrop-blur-md">
+              <span className="flex h-2 w-2 rounded-full bg-teal-400"></span>
+              <span>Manager Dashboard</span>
+            </div>
+            <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight leading-tight">
+              Good Morning, <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-400">{user?.name || 'Manager'}</span>
             </h1>
-            <p className="text-[#0F9D8A] text-lg font-medium">
-              Manage assignments, monitor field operations, and keep civic work moving.
+            <p className="text-slate-300 text-lg leading-relaxed">
+              Coordinate field workers, verify task completion, and ensure civic issues are resolved efficiently.
             </p>
           </div>
-          <div className="hidden md:block p-4 bg-white/10 rounded-full backdrop-blur-sm border border-white/10 shadow-inner">
-            <Activity className="w-12 h-12 text-white opacity-80" />
+          <div className="hidden md:flex p-6 bg-white/5 rounded-3xl backdrop-blur-md border border-white/10 shadow-xl">
+            <Activity className="w-16 h-16 text-teal-400" strokeWidth={1.5} />
           </div>
         </div>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
         {[
-          { label: 'Approved Issues', value: metrics?.approvedIssues || 0, icon: AlertCircle, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100', link: '/manager/issues' },
-          { label: 'Active Assignments', value: metrics?.activeAssignments || 0, icon: Briefcase, color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-100', link: '/manager/assignments' },
-          { label: 'Available Workers', value: metrics?.availableWorkers || 0, icon: Users, color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-100', link: '/manager/workers' },
-          { label: 'Pending Verifications (Before)', value: metrics?.pendingVerifications || 0, icon: CheckSquare, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100', link: '/manager/verifications/before' },
-          { label: 'Pending Verifications (After)', value: metrics?.pendingAfterVerifications || 0, icon: ShieldCheck, color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-100', link: '/manager/verifications/after' }
-        ].map((stat, index) => (
-          <Link key={index} to={stat.link} className={`bg-white rounded-2xl p-5 border ${stat.border} shadow-sm hover:shadow-md transition-all group flex flex-col justify-between`}>
-            <div className="flex justify-between items-start mb-4">
-              <div className={`p-3 rounded-xl ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform`}>
-                <stat.icon size={24} strokeWidth={2.5} />
+          { label: 'Approved Issues', value: metrics?.approvedIssues || 0, icon: AlertCircle, color: 'blue', link: '/manager/issues' },
+          { label: 'Active Assignments', value: metrics?.activeAssignments || 0, icon: Briefcase, color: 'purple', link: '/manager/assignments' },
+          { label: 'Available Workers', value: metrics?.availableWorkers || 0, icon: Users, color: 'teal', link: '/manager/workers' },
+          { label: 'Before Verification', value: metrics?.pendingVerifications || 0, icon: CheckSquare, color: 'amber', link: '/manager/verifications/before', highlight: true },
+          { label: 'After Verification', value: metrics?.pendingAfterVerifications || 0, icon: ShieldCheck, color: 'orange', link: '/manager/verifications/after', highlight: true }
+        ].map((stat, index) => {
+          const colorStyles = {
+            blue: "bg-blue-50 text-blue-600 border-blue-100 group-hover:bg-blue-100",
+            purple: "bg-purple-50 text-purple-600 border-purple-100 group-hover:bg-purple-100",
+            teal: "bg-teal-50 text-teal-600 border-teal-100 group-hover:bg-teal-100",
+            amber: "bg-amber-50 text-amber-600 border-amber-100 group-hover:bg-amber-100",
+            orange: "bg-orange-50 text-orange-600 border-orange-100 group-hover:bg-orange-100",
+          }[stat.color];
+
+          return (
+            <Link key={index} to={stat.link} className={"bg-white rounded-3xl p-6 border " + (stat.highlight ? "border-amber-200 ring-2 ring-amber-50" : "border-slate-200") + " shadow-sm hover:shadow-md transition-all group flex flex-col justify-between relative overflow-hidden"}>
+              {stat.highlight && <div className="absolute top-0 right-0 w-2 h-full bg-amber-400"></div>}
+              <div className="flex justify-between items-start mb-6">
+                <div className={"p-3.5 rounded-2xl border " + colorStyles + " transition-colors duration-300"}>
+                  <stat.icon size={24} strokeWidth={2.5} />
+                </div>
               </div>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-[#0F172A] mb-1">{stat.value}</p>
-              <p className="text-sm font-medium text-[#64748B]">{stat.label}</p>
-            </div>
-          </Link>
-        ))}
+              <div>
+                <p className="text-4xl font-black text-slate-900 mb-1 tracking-tight">{stat.value}</p>
+                <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">{stat.label}</p>
+              </div>
+            </Link>
+          );
+        })}
       </div>
 
       {/* Main Content Grid */}
@@ -142,94 +159,95 @@ const ManagerDashboard = () => {
         <div className="lg:col-span-2 space-y-8">
           
           {/* Active Assignments */}
-          <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] overflow-hidden flex flex-col h-full">
-            <div className="p-6 border-b border-[#E2E8F0] flex justify-between items-center bg-[#F8FAFC]">
+          <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
+            <div className="p-6 sm:p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <div>
-                <h2 className="text-lg font-bold text-[#0F172A] flex items-center">
-                  <Briefcase className="w-5 h-5 mr-2 text-[#3B82F6]" />
+                <h2 className="text-xl font-extrabold text-slate-900 flex items-center">
+                  <Briefcase className="w-6 h-6 mr-3 text-purple-500" strokeWidth={2.5} />
                   Active Assignments
                 </h2>
-                <p className="text-sm text-[#64748B] mt-1">Ongoing field work and recent updates</p>
               </div>
-              <Link to="/manager/assignments" className="text-sm font-medium text-[#3B82F6] hover:text-[#2563EB] flex items-center bg-blue-50 px-3 py-1.5 rounded-lg transition-colors">
-                View All <ChevronRight size={16} className="ml-1" />
-              </Link>
             </div>
-            
-            <div className="p-0 overflow-x-auto">
+            <div className="flex-1 overflow-x-auto p-4 sm:p-6">
               {assignments.length > 0 ? (
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-[#64748B] uppercase tracking-wider">Issue</th>
-                      <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-[#64748B] uppercase tracking-wider">Worker</th>
-                      <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-[#64748B] uppercase tracking-wider">Status</th>
-                      <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-[#64748B] uppercase tracking-wider">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {assignments.map((assignment) => (
-                      <tr key={assignment.id} className="hover:bg-gray-50 transition-colors">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div>
-                              <div className="text-sm font-medium text-[#0F172A] truncate max-w-xs">{assignment.issue?.title || 'Unknown Issue'}</div>
-                              <div className="text-xs text-[#64748B] mt-1 flex items-center">
-                                <Clock size={12} className="mr-1" />
-                                Assigned {formatDistanceToNow(new Date(assignment.assignedDate), { addSuffix: true })}
+                <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                  <table className="min-w-full divide-y divide-slate-200">
+                    <thead className="bg-slate-50">
+                      <tr>
+                        <th scope="col" className="px-6 py-4 text-left text-xs font-black text-slate-500 uppercase tracking-wider">Issue & Time</th>
+                        <th scope="col" className="px-6 py-4 text-left text-xs font-black text-slate-500 uppercase tracking-wider">Worker</th>
+                        <th scope="col" className="px-6 py-4 text-left text-xs font-black text-slate-500 uppercase tracking-wider">Status</th>
+                        <th scope="col" className="px-6 py-4 text-right text-xs font-black text-slate-500 uppercase tracking-wider">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-slate-200">
+                      {assignments.map((assignment) => (
+                        <tr key={assignment.id} className="hover:bg-slate-50 transition-colors group">
+                          <td className="px-6 py-5 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div>
+                                <div className="text-sm font-bold text-slate-900 truncate max-w-[200px] mb-1 group-hover:text-purple-600 transition-colors">{assignment.issue?.title || 'Unknown Issue'}</div>
+                                <div className="text-xs font-bold text-slate-400 flex items-center">
+                                  <Clock size={12} className="mr-1" strokeWidth={2.5} />
+                                  Assigned {formatDistanceToNow(new Date(assignment.assignedDate), { addSuffix: true })}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-600 mr-3 border border-white shadow-sm">
-                              {assignment.worker?.user?.email?.charAt(0).toUpperCase() || 'W'}
+                          </td>
+                          <td className="px-6 py-5 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="h-9 w-9 rounded-xl bg-purple-100 flex items-center justify-center text-xs font-black text-purple-700 mr-3 border border-purple-200">
+                                {assignment.worker?.user?.email?.charAt(0).toUpperCase() || 'W'}
+                              </div>
+                              <div className="text-sm text-slate-700 font-bold">
+                                {assignment.worker?.user?.email ? assignment.worker.user.email.split('@')[0] : 'Unknown'}
+                              </div>
                             </div>
-                            <div className="text-sm text-[#334155] font-medium">
-                              {assignment.worker?.user?.email ? assignment.worker.user.email.split('@')[0] : 'Unknown'}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border ${getStatusColor(assignment.status)}`}>
-                            {getStatusLabel(assignment.status)}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <Link to={`/manager/assignments/${assignment.id}`} className="text-[#3B82F6] hover:text-[#2563EB] inline-flex items-center font-semibold">
-                            View <ChevronRight size={14} className="ml-1" />
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                          </td>
+                          <td className="px-6 py-5 whitespace-nowrap">
+                            <span className={"px-3 py-1.5 text-[11px] font-black tracking-wider uppercase rounded-lg border " + getStatusColor(assignment.status)}>
+                              {getStatusLabel(assignment.status)}
+                            </span>
+                          </td>
+                          <td className="px-6 py-5 whitespace-nowrap text-right text-sm font-medium">
+                            <Link to={"/manager/assignments/" + assignment.id} className="inline-flex items-center justify-center text-purple-600 hover:text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-100 px-4 py-2 rounded-xl transition-all font-bold">
+                              View <ChevronRight size={16} className="ml-1" strokeWidth={2.5} />
+                            </Link>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               ) : (
-                <div className="p-12 text-center flex flex-col items-center justify-center">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                    <CheckSquare className="w-8 h-8 text-gray-400" />
+                <div className="p-12 text-center flex flex-col items-center justify-center bg-slate-50 rounded-2xl border border-slate-200 border-dashed">
+                  <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center mb-6 shadow-sm border border-slate-200">
+                    <CheckSquare className="w-10 h-10 text-slate-300" strokeWidth={1.5} />
                   </div>
-                  <p className="text-gray-500 font-medium text-lg">No active assignments</p>
-                  <p className="text-gray-400 text-sm mt-1">Assignments will appear here once created.</p>
+                  <p className="text-slate-900 font-bold text-xl mb-2">No active assignments</p>
+                  <p className="text-slate-500 font-medium max-w-sm">When you assign workers to civic issues, tracking will appear here.</p>
                 </div>
               )}
             </div>
           </div>
 
           {/* Map Placeholder */}
-          <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] overflow-hidden">
-            <div className="p-6 border-b border-[#E2E8F0] flex justify-between items-center bg-[#F8FAFC]">
-              <h2 className="text-lg font-bold text-[#0F172A] flex items-center">
-                <MapPin className="w-5 h-5 mr-2 text-[#0F9D8A]" />
+          <div className="bg-[#0B1F3A] rounded-3xl shadow-xl overflow-hidden flex flex-col relative border border-[#1e293b]">
+            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-50"></div>
+            <div className="p-6 sm:p-8 border-b border-white/10 flex justify-between items-center relative z-10">
+              <h2 className="text-xl font-extrabold text-white flex items-center">
+                <MapPin className="w-6 h-6 mr-3 text-teal-400" strokeWidth={2.5} />
                 Issue Location Map
               </h2>
             </div>
-            <div className="h-64 bg-slate-100 flex items-center justify-center relative overflow-hidden">
-              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-              <div className="text-center z-10">
-                <MapPin className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                <p className="text-slate-500 font-medium">Map visualization coming soon</p>
+            <div className="h-72 bg-slate-900/50 flex items-center justify-center relative overflow-hidden backdrop-blur-sm z-10">
+              <div className="text-center z-10 relative">
+                <div className="absolute inset-0 bg-teal-400 blur-xl opacity-20 rounded-full animate-pulse"></div>
+                <div className="w-24 h-24 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-teal-400 border border-white/20 relative z-10 mx-auto mb-6">
+                  <MapPin className="w-10 h-10" strokeWidth={1.5} />
+                </div>
+                <h3 className="font-bold text-white mb-2 text-xl">Interactive Map</h3>
+                <p className="text-slate-400 font-medium">Geospatial visualization coming soon.</p>
               </div>
             </div>
           </div>
@@ -240,37 +258,38 @@ const ManagerDashboard = () => {
         <div className="space-y-8">
           
           {/* Pending Actions */}
-          <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] overflow-hidden">
-            <div className="p-6 border-b border-[#E2E8F0] bg-gradient-to-r from-amber-50 to-white">
-              <h2 className="text-lg font-bold text-[#0F172A] flex items-center">
-                <AlertCircle className="w-5 h-5 mr-2 text-amber-500" />
+          <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden relative">
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-amber-400 to-amber-500"></div>
+            <div className="p-6 sm:p-8 border-b border-slate-100 bg-amber-50/50">
+              <h2 className="text-xl font-extrabold text-slate-900 flex items-center">
+                <AlertCircle className="w-6 h-6 mr-3 text-amber-500" strokeWidth={2.5} />
                 Needs Attention
               </h2>
-              <p className="text-sm text-[#64748B] mt-1">Pending actions requiring your input</p>
+              <p className="text-sm text-slate-500 font-medium mt-1">Pending actions requiring your input</p>
             </div>
-            <div className="p-0">
+            <div className="p-4">
               {beforeVerifications.length > 0 ? (
-                <ul className="divide-y divide-[#E2E8F0]">
+                <ul className="space-y-3">
                   {beforeVerifications.map(ver => (
-                    <li key={ver.id} className="p-5 hover:bg-slate-50 transition-colors">
+                    <li key={ver.id} className="p-5 rounded-2xl border border-slate-100 hover:border-amber-200 hover:bg-amber-50/50 transition-all group shadow-sm">
                       <div className="flex items-start">
-                        <div className="flex-shrink-0 mt-0.5">
-                          <CircleDot className="w-4 h-4 text-amber-500" />
+                        <div className="flex-shrink-0 mt-1">
+                          <CircleDot className="w-5 h-5 text-amber-500" strokeWidth={2.5} />
                         </div>
-                        <div className="ml-3 w-full">
-                          <p className="text-sm font-semibold text-[#0F172A]">Before-Work Verification</p>
-                          <p className="text-xs text-[#64748B] mt-1 line-clamp-1">
-                            Issue: {ver.assignment?.issue?.title || 'Unknown'}
+                        <div className="ml-4 w-full">
+                          <p className="text-sm font-black tracking-widest uppercase text-amber-700 mb-1.5">Before-Work Verification</p>
+                          <p className="text-base font-bold text-slate-900 line-clamp-2">
+                            {ver.assignment?.issue?.title || 'Unknown Issue'}
                           </p>
-                          <div className="mt-3 flex items-center justify-between">
-                            <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-1 rounded-md">
+                          <div className="mt-4 flex items-center justify-between">
+                            <span className="text-xs font-bold text-slate-400 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
                               {format(new Date(ver.createdAt), 'MMM d, h:mm a')}
                             </span>
                             <Link 
-                              to={`/manager/verifications/before/${ver.id}`}
-                              className="text-xs font-bold text-[#3B82F6] hover:text-[#2563EB] uppercase tracking-wide"
+                              to={"/manager/verifications/before/" + ver.id}
+                              className="text-xs font-bold text-amber-700 bg-amber-100/50 border border-amber-200 hover:bg-amber-200 hover:text-amber-800 py-2 px-4 rounded-xl transition-colors"
                             >
-                              Review
+                              REVIEW
                             </Link>
                           </div>
                         </div>
@@ -279,16 +298,16 @@ const ManagerDashboard = () => {
                   ))}
                 </ul>
               ) : (
-                <div className="p-10 text-center">
-                  <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <ShieldCheck className="w-6 h-6 text-green-500" />
+                <div className="p-12 text-center flex flex-col items-center justify-center bg-slate-50 rounded-2xl border border-slate-200 border-dashed">
+                  <div className="w-16 h-16 bg-green-100 rounded-3xl flex items-center justify-center mx-auto mb-4 border border-green-200">
+                    <ShieldCheck className="w-8 h-8 text-green-600" strokeWidth={2} />
                   </div>
-                  <p className="text-gray-500 font-medium">You're all caught up!</p>
-                  <p className="text-gray-400 text-xs mt-1">No pending verifications found.</p>
+                  <p className="text-slate-900 font-bold text-lg mb-1">You're all caught up!</p>
+                  <p className="text-slate-500 font-medium text-sm">No pending verifications found.</p>
                 </div>
               )}
               {metrics?.pendingVerifications > 5 && (
-                <Link to="/manager/verifications/before" className="block w-full p-3 text-center text-sm font-medium text-amber-600 bg-amber-50 hover:bg-amber-100 transition-colors">
+                <Link to="/manager/verifications/before" className="mt-4 block w-full p-4 text-center text-sm font-bold text-amber-700 bg-amber-50 rounded-xl hover:bg-amber-100 transition-colors border border-amber-200">
                   View all {metrics.pendingVerifications} pending verifications
                 </Link>
               )}
@@ -296,18 +315,18 @@ const ManagerDashboard = () => {
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] overflow-hidden">
-            <div className="p-6 border-b border-[#E2E8F0] bg-[#F8FAFC]">
-              <h2 className="text-lg font-bold text-[#0F172A]">Quick Actions</h2>
+          <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="p-6 sm:p-8 border-b border-slate-100 bg-slate-50/50">
+              <h2 className="text-xl font-extrabold text-slate-900">Quick Actions</h2>
             </div>
-            <div className="p-4 grid grid-cols-2 gap-3">
-              <Link to="/manager/issues" className="flex flex-col items-center justify-center p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-blue-50 hover:border-blue-200 transition-colors group">
-                <AlertCircle className="w-6 h-6 text-slate-400 group-hover:text-blue-600 mb-2" />
-                <span className="text-xs font-semibold text-slate-600 group-hover:text-blue-700">Assign Worker</span>
+            <div className="p-6 grid grid-cols-2 gap-4">
+              <Link to="/manager/issues" className="flex flex-col items-center justify-center p-6 rounded-2xl border border-slate-200 bg-white hover:bg-blue-50 hover:border-blue-200 transition-all group shadow-sm hover:shadow-md hover:-translate-y-1">
+                <AlertCircle className="w-8 h-8 text-slate-300 group-hover:text-blue-500 mb-3 transition-colors" strokeWidth={2} />
+                <span className="text-sm font-bold text-slate-600 group-hover:text-blue-700 transition-colors">Assign Worker</span>
               </Link>
-              <Link to="/manager/workers" className="flex flex-col items-center justify-center p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-green-50 hover:border-green-200 transition-colors group">
-                <Users className="w-6 h-6 text-slate-400 group-hover:text-green-600 mb-2" />
-                <span className="text-xs font-semibold text-slate-600 group-hover:text-green-700">View Workers</span>
+              <Link to="/manager/workers" className="flex flex-col items-center justify-center p-6 rounded-2xl border border-slate-200 bg-white hover:bg-green-50 hover:border-green-200 transition-all group shadow-sm hover:shadow-md hover:-translate-y-1">
+                <Users className="w-8 h-8 text-slate-300 group-hover:text-green-500 mb-3 transition-colors" strokeWidth={2} />
+                <span className="text-sm font-bold text-slate-600 group-hover:text-green-700 transition-colors">View Workers</span>
               </Link>
             </div>
           </div>

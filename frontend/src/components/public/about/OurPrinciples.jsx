@@ -5,61 +5,83 @@ const OurPrinciples = () => {
   const principles = [
     {
       title: 'Transparency',
-      description: 'Clear visibility into the status of civic reports at every stage.',
-      icon: Eye
+      description: 'Clear visibility into the status of civic reports at every stage. We ensure that no report gets lost in the void.',
+      icon: Eye,
+      color: 'text-[#0F9D8A]',
+      bg: 'bg-[#0F9D8A]/10'
     },
     {
       title: 'Accountability',
-      description: 'Ensuring responsible parties are assigned and tracked.',
-      icon: ShieldCheck
+      description: 'Ensuring responsible parties are assigned and tracked. Every action has a clear owner and timeline.',
+      icon: ShieldCheck,
+      color: 'text-[#3B82F6]',
+      bg: 'bg-[#3B82F6]/10'
     },
     {
       title: 'Accessibility',
-      description: 'Making the reporting process straightforward for everyone.',
-      icon: Accessibility
+      description: 'Making the reporting process straightforward for everyone, regardless of technical expertise.',
+      icon: Accessibility,
+      color: 'text-[#8B5CF6]',
+      bg: 'bg-[#8B5CF6]/10'
     },
     {
-      title: 'Evidence',
-      description: 'Relying on media and location data to verify claims and fixes.',
-      icon: Camera
+      title: 'Evidence-Based',
+      description: 'Relying on media and location data to verify claims and fixes, ensuring work is genuinely completed.',
+      icon: Camera,
+      color: 'text-[#F59E0B]',
+      bg: 'bg-[#F59E0B]/10'
     },
     {
-      title: 'Community',
-      description: 'Fostering collaboration between citizens and local authorities.',
-      icon: Users
+      title: 'Community Driven',
+      description: 'Fostering collaboration between citizens and local authorities to build better neighborhoods together.',
+      icon: Users,
+      color: 'text-[#16A34A]',
+      bg: 'bg-[#16A34A]/10'
     }
   ];
 
   return (
-    <section className="py-16 sm:py-24 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-16 border-l-4 border-blue-600 pl-6">
-          <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl mb-4">
-            Our Principles
-          </h2>
-          <p className="text-lg text-gray-600 max-w-2xl">
-            The core values guiding the design and operation of the SAMADHAN platform.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {principles.map((principle, index) => (
-            <div key={index} className="flex space-x-4 p-6 bg-gray-50 rounded-xl">
-              <div className="flex-shrink-0">
-                <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                  <principle.icon className="h-5 w-5 text-blue-600" />
-                </div>
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-gray-900 mb-1">{principle.title}</h3>
-                <p className="text-gray-600 text-sm">{principle.description}</p>
-              </div>
+    <section className="bg-white py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid gap-16 lg:grid-cols-12">
+          {/* Sticky Header Column */}
+          <div className="lg:col-span-5">
+            <div className="sticky top-24">
+              <span className="mb-3 block text-sm font-semibold uppercase tracking-wider text-[#0F9D8A]">
+                Core Values
+              </span>
+              <h2 className="text-3xl font-extrabold text-[#0B1F3A] sm:text-4xl lg:text-5xl">
+                Our Principles
+              </h2>
+              <p className="mt-6 text-lg leading-relaxed text-[#64748B]">
+                The fundamental values guiding the design, operation, and future of the SAMADHAN platform.
+              </p>
+              
+              <div className="mt-10 h-1 w-20 rounded-full bg-[#E2E8F0]" />
             </div>
-          ))}
+          </div>
+
+          {/* Scrolling Content Column */}
+          <div className="lg:col-span-7">
+            <div className="space-y-12">
+              {principles.map((principle, index) => (
+                <div key={index} className="flex gap-6">
+                  <div className="flex-shrink-0">
+                    <div className={`flex h-14 w-14 items-center justify-center rounded-2xl ${principle.bg} ${principle.color}`}>
+                      <principle.icon className="h-6 w-6" />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="mb-3 text-2xl font-bold text-[#0F172A]">{principle.title}</h3>
+                    <p className="text-lg leading-relaxed text-[#64748B]">{principle.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>
   );
 };
-
 export default OurPrinciples;

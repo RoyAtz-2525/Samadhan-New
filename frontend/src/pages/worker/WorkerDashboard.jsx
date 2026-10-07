@@ -49,9 +49,9 @@ const WorkerDashboard = () => {
   if (loading) {
     return (
       <div className="p-8 max-w-7xl mx-auto space-y-6">
-        <div className="h-32 bg-gray-200 rounded-2xl animate-pulse"></div>
+        <div className="h-32 bg-slate-100 rounded-3xl animate-pulse"></div>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => <div key={i} className="h-32 bg-gray-200 rounded-2xl animate-pulse"></div>)}
+          {[...Array(4)].map((_, i) => <div key={i} className="h-32 bg-slate-100 rounded-3xl animate-pulse"></div>)}
         </div>
       </div>
     );
@@ -60,7 +60,7 @@ const WorkerDashboard = () => {
   if (error) {
     return (
       <div className="p-8 max-w-7xl mx-auto">
-        <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl flex items-center">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-3xl flex items-center">
           <AlertCircle className="w-6 h-6 mr-3 flex-shrink-0" />
           <p>{error}</p>
         </div>
@@ -75,126 +75,125 @@ const WorkerDashboard = () => {
     <div className="max-w-7xl mx-auto pb-12 space-y-8">
       
       {/* Welcome Hero */}
-      <div className="bg-gradient-to-r from-[#0B1F3A] to-[#1a365d] rounded-3xl p-8 sm:p-10 text-white shadow-lg relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -translate-y-1/2 translate-x-1/3 blur-2xl"></div>
-        <div className="absolute bottom-0 right-32 w-48 h-48 bg-[#3B82F6] opacity-20 rounded-full translate-y-1/2 blur-2xl"></div>
+      <div className="bg-[#0B1F3A] rounded-3xl overflow-hidden relative shadow-2xl border border-[#1e293b]">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djIwaC0ydi0yMGgtMjB2LTJoMjB2LTIwaDJ2MjBoMjB2MmgtMjB6Ii8+PC9nPjwvZz48L3N2Zz4=')]"></div>
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/20 rounded-full blur-[120px] pointer-events-none -translate-y-1/2 translate-x-1/3"></div>
         
-        <div className="relative z-10">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3">
-            Good Morning, {user?.name?.split(' ')[0] || 'Worker'} 👋
-          </h1>
-          <p className="text-blue-100 text-lg max-w-2xl">
-            Stay on top of your assignments and help make your community better. You have <span className="font-semibold text-white">{metrics.pending} pending</span> assignments today.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-4">
-            <Link 
-              to="/worker/assignments?status=PENDING" 
-              className="bg-[#3B82F6] hover:bg-[#2563eb] text-white px-6 py-3 rounded-xl font-semibold transition-colors shadow-sm inline-flex items-center"
-            >
-              View New Assignments
-              <ChevronRight size={18} className="ml-1" />
-            </Link>
-            {metrics.active > 0 && (
+        <div className="px-8 md:px-12 py-12 relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center space-x-2 bg-white/5 border border-white/10 px-4 py-2 rounded-full text-sm font-medium text-blue-300 mb-6 backdrop-blur-md">
+              <span className="flex h-2 w-2 rounded-full bg-blue-400"></span>
+              <span>Worker Dashboard</span>
+            </div>
+            <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight leading-tight">
+              Good Morning, <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-teal-400">{user?.name?.split(' ')[0] || 'Worker'}</span>
+            </h1>
+            <p className="text-slate-300 text-lg leading-relaxed">
+              Stay on top of your assignments and help make your community better. You have <span className="font-bold text-white">{metrics.pending} pending</span> assignments today.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-4">
               <Link 
-                to="/worker/assignments?status=IN_PROGRESS" 
-                className="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-6 py-3 rounded-xl font-semibold transition-colors shadow-sm inline-flex items-center"
+                to="/worker/assignments?status=PENDING" 
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-md hover:shadow-lg inline-flex items-center"
               >
-                Continue Work
-                <ChevronRight size={18} className="ml-1" />
+                View New Assignments
+                <ChevronRight size={18} className="ml-1" strokeWidth={2.5} />
               </Link>
-            )}
+              {metrics.active > 0 && (
+                <Link 
+                  to="/worker/assignments?status=IN_PROGRESS" 
+                  className="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-6 py-3 rounded-xl font-bold transition-all shadow-sm hover:shadow-md inline-flex items-center backdrop-blur-sm"
+                >
+                  Continue Work
+                  <ChevronRight size={18} className="ml-1" strokeWidth={2.5} />
+                </Link>
+              )}
+            </div>
+          </div>
+          <div className="hidden md:flex p-6 bg-white/5 rounded-3xl backdrop-blur-md border border-white/10 shadow-xl">
+            <Briefcase className="w-16 h-16 text-blue-400" strokeWidth={1.5} />
           </div>
         </div>
       </div>
 
       {/* Navigation Tabs */}
-      <div className="border-b border-[#E2E8F0]">
-        <nav className="flex space-x-8 overflow-x-auto" aria-label="Tabs">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-2 flex overflow-x-auto gap-2">
           <button
             onClick={() => setActiveTab('overview')}
-            className={`${activeTab === 'overview' ? 'border-[#3B82F6] text-[#0F172A]' : 'border-transparent text-[#64748B] hover:text-[#0F172A] hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-semibold text-sm transition-colors`}
+            className={"px-6 py-3 rounded-xl font-bold text-sm transition-colors whitespace-nowrap " + (activeTab === 'overview' ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-700 hover:bg-slate-50")}
           >
             Dashboard Overview
           </button>
           <button
             onClick={() => setActiveTab('performance')}
-            className={`${activeTab === 'performance' ? 'border-[#3B82F6] text-[#0F172A]' : 'border-transparent text-[#64748B] hover:text-[#0F172A] hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-semibold text-sm transition-colors`}
+            className={"px-6 py-3 rounded-xl font-bold text-sm transition-colors whitespace-nowrap " + (activeTab === 'performance' ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-700 hover:bg-slate-50")}
           >
             My Performance
           </button>
           <button
             onClick={() => setActiveTab('appraisals')}
-            className={`${activeTab === 'appraisals' ? 'border-[#3B82F6] text-[#0F172A]' : 'border-transparent text-[#64748B] hover:text-[#0F172A] hover:border-gray-300'} whitespace-nowrap py-4 px-1 border-b-2 font-semibold text-sm flex items-center transition-colors`}
+            className={"px-6 py-3 rounded-xl font-bold text-sm transition-colors whitespace-nowrap flex items-center " + (activeTab === 'appraisals' ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-700 hover:bg-slate-50")}
           >
             Formal Appraisals
             {pendingAppraisals > 0 && (
-              <span className="ml-2 bg-[#DC2626] text-white py-0.5 px-2 rounded-full text-[10px] font-bold">
+              <span className="ml-2 bg-red-500 text-white py-0.5 px-2 rounded-lg text-[10px] font-black">
                 {pendingAppraisals} NEW
               </span>
             )}
           </button>
-        </nav>
       </div>
 
       {activeTab === 'overview' && (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
           {/* KPI Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-6 hover:shadow-md transition-shadow relative overflow-hidden group">
-              <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-amber-50 rounded-full transition-transform group-hover:scale-110"></div>
-              <div className="relative z-10">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center">
-                    <Clock size={24} />
-                  </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Link to="/worker/assignments?status=PENDING" className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all group flex flex-col justify-between relative overflow-hidden">
+              <div className="flex justify-between items-start mb-6">
+                <div className="p-3.5 rounded-2xl border bg-amber-50 text-amber-600 border-amber-100 group-hover:bg-amber-100 transition-colors duration-300">
+                  <Clock size={24} strokeWidth={2.5} />
                 </div>
-                <h3 className="text-3xl font-bold text-[#0F172A] mb-1">{metrics.pending}</h3>
-                <p className="text-sm font-medium text-[#64748B]">Pending Tasks</p>
-                <Link to="/worker/assignments?status=PENDING" className="absolute inset-0 z-20"><span className="sr-only">View Pending Tasks</span></Link>
               </div>
-            </div>
+              <div>
+                <p className="text-4xl font-black text-slate-900 mb-1 tracking-tight">{metrics?.pending || 0}</p>
+                <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">Pending Work</p>
+              </div>
+            </Link>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-6 hover:shadow-md transition-shadow relative overflow-hidden group">
-              <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-blue-50 rounded-full transition-transform group-hover:scale-110"></div>
-              <div className="relative z-10">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="w-12 h-12 bg-blue-100 text-[#3B82F6] rounded-xl flex items-center justify-center">
-                    <Briefcase size={24} />
-                  </div>
+            <Link to="/worker/assignments?status=IN_PROGRESS" className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all group flex flex-col justify-between relative overflow-hidden">
+              <div className="flex justify-between items-start mb-6">
+                <div className="p-3.5 rounded-2xl border bg-blue-50 text-blue-600 border-blue-100 group-hover:bg-blue-100 transition-colors duration-300">
+                  <Briefcase size={24} strokeWidth={2.5} />
                 </div>
-                <h3 className="text-3xl font-bold text-[#0F172A] mb-1">{metrics.active}</h3>
-                <p className="text-sm font-medium text-[#64748B]">Active Work</p>
-                <Link to="/worker/assignments?status=IN_PROGRESS" className="absolute inset-0 z-20"><span className="sr-only">View Active Work</span></Link>
               </div>
-            </div>
+              <div>
+                <p className="text-4xl font-black text-slate-900 mb-1 tracking-tight">{metrics?.active || 0}</p>
+                <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">Active Work</p>
+              </div>
+            </Link>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-6 hover:shadow-md transition-shadow relative overflow-hidden group">
-              <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-cyan-50 rounded-full transition-transform group-hover:scale-110"></div>
-              <div className="relative z-10">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="w-12 h-12 bg-cyan-100 text-cyan-600 rounded-xl flex items-center justify-center">
-                    <FileCheck size={24} />
-                  </div>
+            <Link to="/worker/assignments?status=ACCEPTED" className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all group flex flex-col justify-between relative overflow-hidden">
+              <div className="flex justify-between items-start mb-6">
+                <div className="p-3.5 rounded-2xl border bg-purple-50 text-purple-600 border-purple-100 group-hover:bg-purple-100 transition-colors duration-300">
+                  <FileCheck size={24} strokeWidth={2.5} />
                 </div>
-                <h3 className="text-3xl font-bold text-[#0F172A] mb-1">{metrics.accepted}</h3>
-                <p className="text-sm font-medium text-[#64748B]">Accepted Assignments</p>
-                <Link to="/worker/assignments?status=ACCEPTED" className="absolute inset-0 z-20"><span className="sr-only">View Accepted</span></Link>
               </div>
-            </div>
+              <div>
+                <p className="text-4xl font-black text-slate-900 mb-1 tracking-tight">{metrics?.accepted || 0}</p>
+                <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">Accepted</p>
+              </div>
+            </Link>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-6 hover:shadow-md transition-shadow relative overflow-hidden group">
-              <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-teal-50 rounded-full transition-transform group-hover:scale-110"></div>
-              <div className="relative z-10">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="w-12 h-12 bg-teal-100 text-[#0F9D8A] rounded-xl flex items-center justify-center">
-                    <CheckCircle size={24} />
-                  </div>
+            <Link to="/worker/assignments?status=COMPLETED" className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-all group flex flex-col justify-between relative overflow-hidden">
+              <div className="flex justify-between items-start mb-6">
+                <div className="p-3.5 rounded-2xl border bg-teal-50 text-teal-600 border-teal-100 group-hover:bg-teal-100 transition-colors duration-300">
+                  <CheckCircle size={24} strokeWidth={2.5} />
                 </div>
-                <h3 className="text-3xl font-bold text-[#0F172A] mb-1">{completedWork}</h3>
-                <p className="text-sm font-medium text-[#64748B]">Completed Work</p>
-                <Link to="/worker/assignments?status=COMPLETED" className="absolute inset-0 z-20"><span className="sr-only">View Completed</span></Link>
               </div>
-            </div>
+              <div>
+                <p className="text-4xl font-black text-slate-900 mb-1 tracking-tight">{completedWork}</p>
+                <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">Completed</p>
+              </div>
+            </Link>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -202,23 +201,23 @@ const WorkerDashboard = () => {
             <div className="lg:col-span-2 space-y-6">
               <div className="flex justify-between items-end">
                 <div>
-                  <h2 className="text-xl font-bold text-[#0F172A]">Current Work Timeline</h2>
-                  <p className="text-sm text-[#64748B] mt-1">Status of your active assignments</p>
+                  <h2 className="text-xl font-extrabold text-slate-900">Current Work Timeline</h2>
+                  <p className="text-sm text-slate-500 mt-1 font-medium">Status of your active assignments</p>
                 </div>
-                <Link to="/worker/assignments" className="text-sm font-semibold text-[#3B82F6] hover:text-[#2563eb] flex items-center">
-                  View All <ChevronRight size={16} className="ml-1" />
+                <Link to="/worker/assignments" className="text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors">
+                  View All <ChevronRight size={16} className="ml-1" strokeWidth={2.5} />
                 </Link>
               </div>
               
-              <div className="bg-white rounded-2xl border border-[#E2E8F0] p-8 text-center flex flex-col items-center justify-center">
-                <div className="w-16 h-16 bg-[#F5F7FA] rounded-full flex items-center justify-center mb-4">
-                  <Briefcase className="w-8 h-8 text-[#64748B]" />
+              <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center flex flex-col items-center justify-center shadow-sm">
+                <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center mb-6 border border-slate-200">
+                  <Briefcase className="w-10 h-10 text-slate-400" strokeWidth={1.5} />
                 </div>
-                <h3 className="text-[#0F172A] font-semibold mb-1">Timeline Available in Assignments</h3>
-                <p className="text-sm text-[#64748B] mb-4 max-w-sm">
+                <h3 className="text-slate-900 font-bold text-xl mb-2">Timeline Available in Assignments</h3>
+                <p className="text-slate-500 font-medium mb-6 max-w-sm">
                   Navigate to your assignments list to view the detailed progress, submit verifications, and execute work.
                 </p>
-                <Link to="/worker/assignments" className="bg-white border border-[#E2E8F0] text-[#0F172A] hover:bg-slate-50 font-medium px-4 py-2 rounded-xl text-sm transition-colors shadow-sm">
+                <Link to="/worker/assignments" className="bg-white border border-slate-200 text-slate-900 hover:bg-slate-50 font-bold px-6 py-3 rounded-xl transition-colors shadow-sm">
                   Go to Assignments
                 </Link>
               </div>
@@ -226,47 +225,56 @@ const WorkerDashboard = () => {
 
             {/* Side Column */}
             <div className="space-y-6">
-              <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-6">
-                <h2 className="text-lg font-bold text-[#0F172A] mb-4">Quick Actions</h2>
+              <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 sm:p-8">
+                <h2 className="text-lg font-extrabold text-slate-900 mb-6">Quick Actions</h2>
                 <div className="space-y-3">
-                  <Link to="/worker/assignments" className="flex items-center justify-between p-3 rounded-xl border border-[#E2E8F0] hover:border-[#3B82F6] hover:bg-[#F5F7FA] transition-colors group">
+                  <Link to="/worker/assignments" className="flex items-center justify-between p-4 rounded-2xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors group">
                     <div className="flex items-center">
-                      <div className="w-8 h-8 bg-blue-100 text-[#3B82F6] rounded-lg flex items-center justify-center mr-3 group-hover:bg-[#3B82F6] group-hover:text-white transition-colors">
-                        <Briefcase size={16} />
+                      <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mr-4 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                        <Briefcase size={20} />
                       </div>
-                      <span className="font-medium text-sm text-[#0F172A]">View Assignments</span>
+                      <span className="font-bold text-slate-900">View Assignments</span>
                     </div>
-                    <ChevronRight size={16} className="text-[#64748B]" />
+                    <ChevronRight size={20} className="text-slate-400 group-hover:text-blue-500 transition-colors" strokeWidth={2.5} />
                   </Link>
-                  <button onClick={() => setActiveTab('performance')} className="w-full flex items-center justify-between p-3 rounded-xl border border-[#E2E8F0] hover:border-teal-500 hover:bg-[#F5F7FA] transition-colors group">
+                  <button onClick={() => setActiveTab('performance')} className="w-full flex items-center justify-between p-4 rounded-2xl border border-slate-200 hover:border-teal-300 hover:bg-teal-50 transition-colors group">
                     <div className="flex items-center">
-                      <div className="w-8 h-8 bg-teal-100 text-[#0F9D8A] rounded-lg flex items-center justify-center mr-3 group-hover:bg-[#0F9D8A] group-hover:text-white transition-colors">
-                        <Star size={16} />
+                      <div className="w-10 h-10 bg-teal-100 text-teal-600 rounded-xl flex items-center justify-center mr-4 group-hover:bg-teal-600 group-hover:text-white transition-colors">
+                        <Star size={20} />
                       </div>
-                      <span className="font-medium text-sm text-[#0F172A]">View Performance</span>
+                      <span className="font-bold text-slate-900">View Performance</span>
                     </div>
-                    <ChevronRight size={16} className="text-[#64748B]" />
+                    <ChevronRight size={20} className="text-slate-400 group-hover:text-teal-500 transition-colors" strokeWidth={2.5} />
                   </button>
-                  <button onClick={() => setActiveTab('appraisals')} className="w-full flex items-center justify-between p-3 rounded-xl border border-[#E2E8F0] hover:border-indigo-500 hover:bg-[#F5F7FA] transition-colors group">
+                  <button onClick={() => setActiveTab('appraisals')} className="w-full flex items-center justify-between p-4 rounded-2xl border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 transition-colors group">
                     <div className="flex items-center">
-                      <div className="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center mr-3 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                        <FileCheck size={16} />
+                      <div className="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mr-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                        <FileCheck size={20} />
                       </div>
-                      <span className="font-medium text-sm text-[#0F172A]">Formal Appraisals</span>
+                      <span className="font-bold text-slate-900">Formal Appraisals</span>
                     </div>
-                    {pendingAppraisals > 0 && <span className="bg-[#DC2626] text-white text-[10px] font-bold px-2 py-0.5 rounded-full mr-2">NEW</span>}
-                    <ChevronRight size={16} className="text-[#64748B] ml-auto" />
+                    {pendingAppraisals > 0 && <span className="bg-red-500 text-white text-[10px] font-black px-2 py-0.5 rounded-lg ml-2">NEW</span>}
+                    <ChevronRight size={20} className="text-slate-400 group-hover:text-indigo-500 transition-colors ml-auto" strokeWidth={2.5} />
                   </button>
                 </div>
               </div>
 
               {/* Location Placeholder */}
-              <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-6 overflow-hidden relative">
-                <h2 className="text-lg font-bold text-[#0F172A] mb-4">Work Location</h2>
-                <div className="bg-[#F5F7FA] border border-[#E2E8F0] rounded-xl h-32 flex flex-col items-center justify-center text-center p-4">
-                  <MapPin size={24} className="text-[#64748B] mb-2 opacity-50" />
-                  <p className="text-xs text-[#64748B] font-medium">Mapbox Map Placeholder</p>
-                  <p className="text-[10px] text-[#94A3B8] mt-1">Location services will appear here</p>
+              <div className="bg-[#0B1F3A] rounded-3xl shadow-xl overflow-hidden flex flex-col relative border border-[#1e293b]">
+                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-50"></div>
+                <div className="p-6 sm:p-8 border-b border-white/10 flex justify-between items-center relative z-10">
+                  <h2 className="text-lg font-extrabold text-white flex items-center">
+                    <MapPin className="w-5 h-5 mr-2 text-teal-400" strokeWidth={2.5} />
+                    Work Location
+                  </h2>
+                </div>
+                <div className="h-48 bg-slate-900/50 flex flex-col items-center justify-center relative overflow-hidden backdrop-blur-sm z-10 p-6 text-center">
+                  <div className="absolute inset-0 bg-teal-400 blur-xl opacity-20 rounded-full animate-pulse"></div>
+                  <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-teal-400 border border-white/20 relative z-10 mx-auto mb-4">
+                    <MapPin className="w-8 h-8" strokeWidth={1.5} />
+                  </div>
+                  <p className="font-bold text-white mb-1">Location Services</p>
+                  <p className="text-slate-400 font-medium text-sm">Mapbox Map Placeholder</p>
                 </div>
               </div>
             </div>
@@ -277,78 +285,78 @@ const WorkerDashboard = () => {
       {activeTab === 'performance' && performance && (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div>
-            <h2 className="text-2xl font-bold text-[#0F172A]">My Performance</h2>
-            <p className="text-sm text-[#64748B] mt-1">Your objective metrics tracked by the SAMADHAN system</p>
+            <h2 className="text-2xl font-extrabold text-slate-900">My Performance</h2>
+            <p className="text-sm text-slate-500 mt-1 font-medium">Your objective metrics tracked by the SAMADHAN system</p>
           </div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-6 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-yellow-50 rounded-bl-full -mr-4 -mt-4 z-0"></div>
-              <div className="relative z-10">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="p-2 bg-yellow-100 text-yellow-600 rounded-lg">
-                    <Star size={20} className="fill-current" />
-                  </div>
-                  <h3 className="text-sm font-bold text-[#64748B] uppercase tracking-wider">Citizen Rating</h3>
+            <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 relative overflow-hidden flex flex-col">
+              <div className="flex items-center mb-6">
+                <div className="p-3 rounded-xl bg-amber-50 text-amber-600 border border-amber-100">
+                  <Star size={24} className="fill-current" strokeWidth={1.5} />
                 </div>
+              </div>
+              <div className="mt-auto">
+                <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">Citizen Rating</p>
                 <div className="flex items-end">
-                  <p className="text-4xl font-bold text-[#0F172A] tracking-tight">{performance.reviews.averageRating}</p>
-                  <p className="text-sm text-[#64748B] mb-1 ml-1 font-medium">/ 5.0</p>
+                  <p className="text-4xl font-black text-slate-900 tracking-tight">{performance.reviews.averageRating}</p>
+                  <p className="text-sm text-slate-500 mb-1 ml-1 font-bold">/ 5.0</p>
                 </div>
-                <p className="text-xs font-medium text-[#64748B] mt-2">Based on {performance.reviews.totalReviews} reviews</p>
+                <p className="text-xs font-medium text-slate-400 mt-2">Based on {performance.reviews.totalReviews} reviews</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-6 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-green-50 rounded-bl-full -mr-4 -mt-4 z-0"></div>
-              <div className="relative z-10">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="p-2 bg-green-100 text-green-600 rounded-lg">
-                    <IndianRupee size={20} />
-                  </div>
-                  <h3 className="text-sm font-bold text-[#64748B] uppercase tracking-wider">Total Earnings</h3>
+            <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 relative overflow-hidden flex flex-col">
+              <div className="flex items-center mb-6">
+                <div className="p-3 rounded-xl bg-blue-50 text-blue-600 border border-blue-100">
+                  <CheckCircle size={24} strokeWidth={1.5} />
                 </div>
+              </div>
+              <div className="mt-auto">
+                <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">Completion Rate</p>
                 <div className="flex items-end">
-                  <p className="text-4xl font-bold text-green-600 tracking-tight">₹{performance.earnings.totalEarned.toLocaleString()}</p>
+                  <p className="text-4xl font-black text-slate-900 tracking-tight">
+                    {performance.assignments.total > 0 
+                      ? Math.round((performance.assignments.completed / performance.assignments.total) * 100) 
+                      : 0}%
+                  </p>
                 </div>
-                <p className="text-xs font-medium text-[#64748B] mt-2">Completed payments</p>
+                <p className="text-xs font-medium text-slate-400 mt-2">{performance.assignments.completed} of {performance.assignments.total} assignments</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-6 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-bl-full -mr-4 -mt-4 z-0"></div>
-              <div className="relative z-10">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="p-2 bg-blue-100 text-[#3B82F6] rounded-lg">
-                    <CheckCircle size={20} />
-                  </div>
-                  <h3 className="text-sm font-bold text-[#64748B] uppercase tracking-wider">Work Quality</h3>
+            <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 relative overflow-hidden flex flex-col">
+              <div className="flex items-center mb-6">
+                <div className="p-3 rounded-xl bg-purple-50 text-purple-600 border border-purple-100">
+                  <FileCheck size={24} strokeWidth={1.5} />
                 </div>
+              </div>
+              <div className="mt-auto">
+                <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">Verifications</p>
                 <div className="flex items-end">
-                  <p className="text-4xl font-bold text-[#0F172A] tracking-tight">
+                  <p className="text-4xl font-black text-slate-900 tracking-tight">
                     {performance.verification.totalAfterWork > 0 
                       ? Math.round((performance.verification.approved / performance.verification.totalAfterWork) * 100) 
                       : 0}%
                   </p>
                 </div>
-                <p className="text-xs font-medium text-[#64748B] mt-2">Verification approval rate</p>
+                <p className="text-xs font-medium text-slate-400 mt-2">Verification approval rate</p>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-6 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-50 rounded-bl-full -mr-4 -mt-4 z-0"></div>
-              <div className="relative z-10">
-                <div className="flex items-center space-x-3 mb-4">
-                  <div className="p-2 bg-cyan-100 text-cyan-600 rounded-lg">
-                    <Clock size={20} />
-                  </div>
-                  <h3 className="text-sm font-bold text-[#64748B] uppercase tracking-wider">Avg Time</h3>
+            <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 relative overflow-hidden flex flex-col">
+              <div className="flex items-center mb-6">
+                <div className="p-3 rounded-xl bg-teal-50 text-teal-600 border border-teal-100">
+                  <Clock size={24} strokeWidth={1.5} />
                 </div>
+              </div>
+              <div className="mt-auto">
+                <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-1">Avg Time</p>
                 <div className="flex items-end">
-                  <p className="text-4xl font-bold text-[#0F172A] tracking-tight">{performance.assignments.averageCompletionTimeHours}</p>
-                  <p className="text-sm text-[#64748B] mb-1 ml-1 font-medium">hrs</p>
+                  <p className="text-4xl font-black text-slate-900 tracking-tight">{performance.assignments.averageCompletionTimeHours}</p>
+                  <p className="text-sm text-slate-500 mb-1 ml-1 font-bold">hrs</p>
                 </div>
-                <p className="text-xs font-medium text-[#64748B] mt-2">Average completion time</p>
+                <p className="text-xs font-medium text-slate-400 mt-2">Average completion time</p>
               </div>
             </div>
           </div>
@@ -358,109 +366,109 @@ const WorkerDashboard = () => {
       {activeTab === 'appraisals' && (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div>
-            <h2 className="text-2xl font-bold text-[#0F172A]">Formal Appraisals</h2>
-            <p className="text-sm text-[#64748B] mt-1">Official evaluations from your managers</p>
+            <h2 className="text-2xl font-extrabold text-slate-900">Formal Appraisals</h2>
+            <p className="text-sm text-slate-500 mt-1 font-medium">Official evaluations from your managers</p>
           </div>
           
           {appraisals.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-[#E2E8F0] p-12 text-center flex flex-col items-center justify-center">
-              <div className="w-16 h-16 bg-[#F5F7FA] rounded-full flex items-center justify-center mb-4">
-                <FileCheck className="w-8 h-8 text-[#64748B]" />
+            <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center flex flex-col items-center justify-center shadow-sm">
+              <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center mb-6 border border-slate-200">
+                <FileCheck className="w-10 h-10 text-slate-400" strokeWidth={1.5} />
               </div>
-              <p className="text-[#0F172A] font-semibold text-lg">No appraisals available</p>
-              <p className="text-[#64748B] text-sm mt-1">You have not received any formal appraisals yet.</p>
+              <p className="text-slate-900 font-bold text-xl mb-2">No appraisals available</p>
+              <p className="text-slate-500 font-medium">You have not received any formal appraisals yet.</p>
             </div>
           ) : (
             <div className="space-y-6">
               {appraisals.map((appraisal) => (
-                <div key={appraisal.id} className={`bg-white rounded-2xl border shadow-sm overflow-hidden ${appraisal.status === 'SUBMITTED' ? 'border-[#3B82F6] ring-1 ring-[#3B82F6]/50' : 'border-[#E2E8F0]'}`}>
-                  <div className="bg-[#F8FAFC] border-b border-[#E2E8F0] p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div key={appraisal.id} className={"bg-white rounded-3xl border shadow-sm overflow-hidden " + (appraisal.status === 'SUBMITTED' ? "border-blue-300 ring-2 ring-blue-50" : "border-slate-200")}>
+                  <div className="bg-slate-50/50 border-b border-slate-100 p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
-                      <h3 className="text-lg font-bold text-[#0F172A]">
+                      <h3 className="text-lg font-extrabold text-slate-900">
                         Period: {format(new Date(appraisal.periodStart), 'MMM d, yyyy')} - {format(new Date(appraisal.periodEnd), 'MMM d, yyyy')}
                       </h3>
-                      <p className="text-sm text-[#64748B] font-medium mt-1">Evaluated by: {appraisal.manager?.user?.name}</p>
+                      <p className="text-sm text-slate-500 font-medium mt-1">Evaluated by: {appraisal.manager?.user?.name}</p>
                     </div>
                     <div className="flex flex-col items-end">
-                      <span className={`inline-flex px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2 ${
-                        appraisal.status === 'SUBMITTED' ? 'bg-blue-100 text-blue-800 border border-blue-200' : 'bg-green-100 text-green-800 border border-green-200'
-                      }`}>
+                      <span className={"inline-flex px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-wider mb-3 border " + 
+                        (appraisal.status === 'SUBMITTED' ? "bg-blue-50 text-blue-700 border-blue-200" : "bg-green-50 text-green-700 border-green-200")
+                      }>
                         {appraisal.status === 'SUBMITTED' ? 'ACTION REQUIRED' : appraisal.status}
                       </span>
                       {appraisal.status === 'SUBMITTED' && (
                         <button 
                           onClick={() => handleAcknowledge(appraisal.id)}
-                          className="text-sm bg-[#3B82F6] text-white px-4 py-2 rounded-xl hover:bg-[#2563eb] transition-colors font-semibold shadow-sm"
+                          className="text-sm bg-blue-600 text-white px-5 py-2.5 rounded-xl hover:bg-blue-700 transition-colors font-bold shadow-sm"
                         >
                           Acknowledge Receipt
                         </button>
                       )}
                       {appraisal.status === 'ACKNOWLEDGED' && (
-                        <p className="text-xs font-medium text-[#64748B] flex items-center">
-                          <CheckCircle size={12} className="mr-1 text-green-500" />
+                        <p className="text-xs font-bold text-slate-500 flex items-center">
+                          <CheckCircle size={14} className="mr-1.5 text-green-500" />
                           Acknowledged on {format(new Date(appraisal.acknowledgedAt), 'MMM d, yyyy')}
                         </p>
                       )}
                     </div>
                   </div>
 
-                  <div className="p-6">
+                  <div className="p-6 sm:p-8">
                     <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
-                      <div className="bg-[#F5F7FA] p-3 rounded-xl border border-[#E2E8F0] text-center">
-                        <div className="text-[10px] text-[#64748B] font-bold uppercase tracking-wider mb-1">OVERALL</div>
-                        <div className="text-2xl font-bold text-[#3B82F6]">{appraisal.overallRating || '-'}</div>
+                      <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-center">
+                        <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">OVERALL</div>
+                        <div className="text-2xl font-black text-blue-600">{appraisal.overallRating || '-'}</div>
                       </div>
-                      <div className="bg-white p-3 rounded-xl border border-[#E2E8F0] text-center">
-                        <div className="text-[10px] text-[#64748B] font-bold uppercase tracking-wider mb-1">QUALITY</div>
-                        <div className="text-xl font-bold text-[#0F172A]">{appraisal.workQualityRating || '-'}</div>
+                      <div className="bg-white p-4 rounded-2xl border border-slate-200 text-center">
+                        <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">QUALITY</div>
+                        <div className="text-xl font-bold text-slate-900">{appraisal.workQualityRating || '-'}</div>
                       </div>
-                      <div className="bg-white p-3 rounded-xl border border-[#E2E8F0] text-center">
-                        <div className="text-[10px] text-[#64748B] font-bold uppercase tracking-wider mb-1">TIME</div>
-                        <div className="text-xl font-bold text-[#0F172A]">{appraisal.timelinessRating || '-'}</div>
+                      <div className="bg-white p-4 rounded-2xl border border-slate-200 text-center">
+                        <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">TIME</div>
+                        <div className="text-xl font-bold text-slate-900">{appraisal.timelinessRating || '-'}</div>
                       </div>
-                      <div className="bg-white p-3 rounded-xl border border-[#E2E8F0] text-center">
-                        <div className="text-[10px] text-[#64748B] font-bold uppercase tracking-wider mb-1">RELIABLE</div>
-                        <div className="text-xl font-bold text-[#0F172A]">{appraisal.reliabilityRating || '-'}</div>
+                      <div className="bg-white p-4 rounded-2xl border border-slate-200 text-center">
+                        <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">RELIABLE</div>
+                        <div className="text-xl font-bold text-slate-900">{appraisal.reliabilityRating || '-'}</div>
                       </div>
-                      <div className="bg-white p-3 rounded-xl border border-[#E2E8F0] text-center">
-                        <div className="text-[10px] text-[#64748B] font-bold uppercase tracking-wider mb-1">PRO</div>
-                        <div className="text-xl font-bold text-[#0F172A]">{appraisal.professionalismRating || '-'}</div>
+                      <div className="bg-white p-4 rounded-2xl border border-slate-200 text-center">
+                        <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">PRO</div>
+                        <div className="text-xl font-bold text-slate-900">{appraisal.professionalismRating || '-'}</div>
                       </div>
-                      <div className="bg-white p-3 rounded-xl border border-[#E2E8F0] text-center">
-                        <div className="text-[10px] text-[#64748B] font-bold uppercase tracking-wider mb-1">COMM</div>
-                        <div className="text-xl font-bold text-[#0F172A]">{appraisal.communicationRating || '-'}</div>
+                      <div className="bg-white p-4 rounded-2xl border border-slate-200 text-center">
+                        <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-2">COMM</div>
+                        <div className="text-xl font-bold text-slate-900">{appraisal.communicationRating || '-'}</div>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {appraisal.strengths && (
                         <div>
-                          <h4 className="text-sm font-bold text-[#0F172A] mb-2 uppercase tracking-wide">Strengths</h4>
-                          <div className="bg-green-50/50 border border-green-100 rounded-xl p-4 text-sm text-[#334155] leading-relaxed">
+                          <h4 className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider">Strengths</h4>
+                          <div className="bg-green-50/50 border border-green-100 rounded-2xl p-5 text-sm text-slate-700 font-medium leading-relaxed">
                             {appraisal.strengths}
                           </div>
                         </div>
                       )}
                       {appraisal.areasForImprovement && (
                         <div>
-                          <h4 className="text-sm font-bold text-[#0F172A] mb-2 uppercase tracking-wide">Areas For Improvement</h4>
-                          <div className="bg-amber-50/50 border border-amber-100 rounded-xl p-4 text-sm text-[#334155] leading-relaxed">
+                          <h4 className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider">Areas For Improvement</h4>
+                          <div className="bg-amber-50/50 border border-amber-100 rounded-2xl p-5 text-sm text-slate-700 font-medium leading-relaxed">
                             {appraisal.areasForImprovement}
                           </div>
                         </div>
                       )}
                       {appraisal.managerComments && (
                         <div className="md:col-span-2">
-                          <h4 className="text-sm font-bold text-[#0F172A] mb-2 uppercase tracking-wide">Manager Comments</h4>
-                          <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl p-4 text-sm text-[#334155] leading-relaxed">
+                          <h4 className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider">Manager Comments</h4>
+                          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 text-sm text-slate-700 font-medium leading-relaxed">
                             {appraisal.managerComments}
                           </div>
                         </div>
                       )}
                       {appraisal.goalsAndRecommendations && (
                         <div className="md:col-span-2">
-                          <h4 className="text-sm font-bold text-[#0F172A] mb-2 uppercase tracking-wide">Goals & Recommendations</h4>
-                          <div className="bg-blue-50/50 border border-blue-100 rounded-xl p-4 text-sm text-[#334155] leading-relaxed">
+                          <h4 className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider">Goals & Recommendations</h4>
+                          <div className="bg-blue-50/50 border border-blue-100 rounded-2xl p-5 text-sm text-slate-700 font-medium leading-relaxed">
                             {appraisal.goalsAndRecommendations}
                           </div>
                         </div>

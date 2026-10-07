@@ -16,21 +16,21 @@ const WorkflowOverview = () => {
   ];
 
   return (
-    <section className="py-12 bg-white border-b border-gray-100 overflow-x-auto">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-w-[800px]">
+    <section className="py-12 md:py-20 bg-slate-50 border-b border-slate-100 overflow-x-auto">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-w-[1000px]">
         <div className="flex items-center justify-between space-x-2">
           {steps.map((step, index) => (
             <React.Fragment key={index}>
-              <div className="flex flex-col items-center flex-1">
-                <div className="bg-gray-50 border border-gray-200 h-12 w-12 rounded-full flex items-center justify-center mb-3 text-blue-600 shadow-sm relative z-10 group hover:border-blue-300 hover:bg-blue-50 transition-colors">
-                  <step.icon className="h-5 w-5" />
+              <div className="flex flex-col items-center flex-1 group">
+                <div className="bg-white border border-slate-200 h-14 w-14 rounded-2xl flex items-center justify-center mb-4 text-slate-400 shadow-sm relative z-10 group-hover:border-teal-300 group-hover:text-teal-600 group-hover:bg-teal-50 transition-all duration-300 hover:-translate-y-1">
+                  <step.icon className="h-6 w-6" strokeWidth={1.5} />
                 </div>
-                <div className="text-xs font-bold text-gray-400 mb-1">{step.num}</div>
-                <div className="text-sm font-semibold text-gray-900">{step.title}</div>
+                <div className="text-xs font-black text-slate-300 mb-1 tracking-widest">{step.num}</div>
+                <div className="text-sm font-bold text-slate-700 tracking-tight">{step.title}</div>
               </div>
               {index < steps.length - 1 && (
-                <div className="flex-1 h-px bg-gray-300 mb-6 relative">
-                  <ArrowRight className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-1/2 h-4 w-4 text-gray-300" />
+                <div className="flex-1 h-px bg-slate-200 mb-8 relative">
+                  <ArrowRight className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-1/2 h-5 w-5 text-slate-300" strokeWidth={2} />
                 </div>
               )}
             </React.Fragment>

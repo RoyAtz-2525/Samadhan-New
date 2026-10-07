@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import workerService from '../../services/workerService';
-import { ArrowLeft, MapPin, Camera, FileText, CheckCircle2, AlertTriangle, AlertCircle, X, Check, XCircle, File, Clock } from 'lucide-react';
+import { ArrowLeft, MapPin, Camera, FileText, CheckCircle2, AlertTriangle, AlertCircle, X, Check, XCircle, File } from 'lucide-react';
 
 const WorkerAfterWorkVerification = () => {
   const { id: assignmentId } = useParams();
@@ -51,7 +51,7 @@ const WorkerAfterWorkVerification = () => {
         setGettingLocation(false);
       },
       (err) => {
-        setLocationError(`Error getting location: ${err.message}`);
+        setLocationError("Error getting location");
         setGettingLocation(false);
       }
     );
@@ -76,10 +76,6 @@ const WorkerAfterWorkVerification = () => {
       alert('Please verify your location before submitting.');
       return;
     }
-    if (!workSummary) {
-      alert('Please select a work summary.');
-      return;
-    }
 
     try {
       setSubmitting(true);
@@ -90,7 +86,7 @@ const WorkerAfterWorkVerification = () => {
         notes,
         media
       });
-      navigate(`/worker/assignments/${assignmentId}`);
+      navigate("/worker/assignments/");
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to submit verification');
     } finally {
@@ -102,8 +98,8 @@ const WorkerAfterWorkVerification = () => {
     return (
       <div className="max-w-3xl mx-auto px-4 py-8 animate-pulse">
         <div className="h-6 w-32 bg-slate-200 rounded mb-6"></div>
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-6 h-48"></div>
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 h-64"></div>
+        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 mb-6 h-48"></div>
+        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 h-64"></div>
       </div>
     );
   }
@@ -111,11 +107,11 @@ const WorkerAfterWorkVerification = () => {
   if (error) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-8">
-        <div className="bg-red-50 border border-red-200 p-6 rounded-2xl flex flex-col items-center text-center">
-          <AlertCircle className="w-12 h-12 text-red-500 mb-3" />
-          <h2 className="text-lg font-bold text-red-700 mb-2">Error</h2>
-          <p className="text-red-600 mb-4">{error}</p>
-          <button onClick={() => navigate(`/worker/assignments/${assignmentId}`)} className="px-6 py-2 bg-red-100 text-red-700 font-semibold rounded-xl hover:bg-red-200 transition-colors">
+        <div className="bg-red-50 border border-red-200 p-8 rounded-3xl flex flex-col items-center text-center">
+          <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
+          <h2 className="text-xl font-bold text-red-800 mb-2">Error</h2>
+          <p className="text-red-600 mb-6 font-medium">{error}</p>
+          <button onClick={() => navigate("/worker/assignments/")} className="px-6 py-3 bg-red-100 text-red-700 font-bold rounded-xl hover:bg-red-200 transition-colors">
             Go Back
           </button>
         </div>
@@ -145,123 +141,71 @@ const WorkerAfterWorkVerification = () => {
   return (
     <div className="max-w-3xl mx-auto pb-12 sm:pb-24">
       {/* Header */}
-      <div className="mb-6 flex items-center">
+      <div className="mb-8 flex items-center">
         <button 
-          onClick={() => navigate(`/worker/assignments/${assignmentId}`)}
-          className="mr-4 p-2 bg-white border border-[#E2E8F0] rounded-xl hover:bg-slate-50 transition-colors shadow-sm text-[#64748B]"
+          onClick={() => navigate("/worker/assignments/")}
+          className="mr-4 p-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm text-slate-600"
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={20} strokeWidth={2.5} />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-[#0F172A] tracking-tight">After-Work Verification</h1>
-          <p className="text-[#64748B] text-sm">Submit final proof of completion</p>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">After-Work Verification</h1>
+          <p className="text-slate-500 font-medium mt-1">Submit proof of completed work</p>
         </div>
       </div>
 
       {/* Assignment Summary Card */}
-      <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-6 mb-6">
+      <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 sm:p-8 mb-8">
         <div className="flex justify-between items-start mb-4">
           <div>
-            <span className="inline-block px-2.5 py-1 bg-slate-100 text-slate-600 text-xs font-bold uppercase tracking-wider rounded border border-slate-200 mb-2">
+            <span className="inline-block px-3 py-1.5 bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-wider rounded-lg border border-slate-200 mb-3">
               {issue.category?.name || 'Uncategorized'}
             </span>
-            <h2 className="text-lg font-bold text-[#0F172A] leading-tight">
+            <h2 className="text-2xl font-extrabold text-slate-900 leading-tight">
               {issue.title}
             </h2>
           </div>
         </div>
-        <div className="flex items-start gap-3 mt-4 pt-4 border-t border-slate-100">
-          <MapPin size={18} className="text-[#64748B] mt-0.5 flex-shrink-0" />
-          <p className="text-sm font-medium text-[#334155]">{issue.address}</p>
+        <div className="flex items-start gap-4 mt-6 pt-6 border-t border-slate-100">
+          <div className="p-3 bg-slate-50 rounded-xl text-slate-400 border border-slate-200">
+            <MapPin size={20} />
+          </div>
+          <div>
+             <p className="text-base font-bold text-slate-900 mt-1.5">{issue.address}</p>
+          </div>
         </div>
       </div>
 
-      {verification && (verification.status === 'PENDING' || verification.status === 'APPROVED' || verification.status === 'REJECTED') ? (
-        <div className={`bg-white rounded-2xl shadow-sm overflow-hidden border-2 ${
-          verification.status === 'APPROVED' ? 'border-green-200' : 
-          verification.status === 'REJECTED' ? 'border-red-200' : 
-          'border-amber-200'
-        }`}>
-          <div className={`p-6 flex items-start gap-4 ${
-            verification.status === 'APPROVED' ? 'bg-green-50' : 
-            verification.status === 'REJECTED' ? 'bg-red-50' : 
-            'bg-amber-50'
-          }`}>
-            <div className={`p-2 rounded-full flex-shrink-0 mt-1 ${
-              verification.status === 'APPROVED' ? 'bg-green-100' : 
-              verification.status === 'REJECTED' ? 'bg-red-100' : 
-              'bg-amber-100'
-            }`}>
-              {verification.status === 'APPROVED' ? (
-                <CheckCircle2 className="w-8 h-8 text-green-600" />
-              ) : verification.status === 'REJECTED' ? (
-                <XCircle className="w-8 h-8 text-red-600" />
-              ) : (
-                <Clock className="w-8 h-8 text-amber-600" />
-              )}
+      {verification ? (
+        <div className="bg-white rounded-3xl shadow-sm border-2 border-green-200 overflow-hidden relative">
+          <div className="absolute top-0 left-0 w-2 h-full bg-green-500"></div>
+          <div className="bg-green-50 p-6 sm:p-8 flex items-start gap-4 sm:gap-6">
+            <div className="p-3 bg-green-100 rounded-full flex-shrink-0">
+              <CheckCircle2 className="w-8 h-8 text-green-600" strokeWidth={2.5} />
             </div>
-            <div>
-              <h3 className={`text-xl font-bold mb-1 ${
-                verification.status === 'APPROVED' ? 'text-green-800' : 
-                verification.status === 'REJECTED' ? 'text-red-800' : 
-                'text-amber-800'
-              }`}>
-                Verification {verification.status}
-              </h3>
+            <div className="flex-1">
+              <h3 className="text-2xl font-extrabold text-green-800 mb-2">Verification Submitted</h3>
+              <p className="text-green-700 font-medium mb-6">You have submitted the after-work verification for appraisal.</p>
               
-              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className={`bg-white p-3 rounded-xl border ${
-                  verification.status === 'APPROVED' ? 'border-green-200' : 
-                  verification.status === 'REJECTED' ? 'border-red-200' : 
-                  'border-amber-200'
-                }`}>
-                  <p className={`text-xs font-bold uppercase tracking-wider mb-1 ${
-                    verification.status === 'APPROVED' ? 'text-green-600' : 
-                    verification.status === 'REJECTED' ? 'text-red-600' : 
-                    'text-amber-600'
-                  }`}>Submitted At</p>
-                  <p className={`font-medium ${
-                    verification.status === 'APPROVED' ? 'text-green-900' : 
-                    verification.status === 'REJECTED' ? 'text-red-900' : 
-                    'text-amber-900'
-                  }`}>{new Date(verification.timestamp).toLocaleString()}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="bg-white p-4 rounded-2xl border border-green-200">
+                  <p className="text-xs text-green-600 font-bold uppercase tracking-wider mb-1.5">Status</p>
+                  <p className="font-bold text-green-900">{verification.status}</p>
                 </div>
-                
+                <div className="bg-white p-4 rounded-2xl border border-green-200">
+                  <p className="text-xs text-green-600 font-bold uppercase tracking-wider mb-1.5">Submitted At</p>
+                  <p className="font-bold text-green-900">{new Date(verification.timestamp).toLocaleString()}</p>
+                </div>
                 {verification.workSummary && (
-                  <div className={`bg-white p-3 rounded-xl border ${
-                    verification.status === 'APPROVED' ? 'border-green-200' : 
-                    verification.status === 'REJECTED' ? 'border-red-200' : 
-                    'border-amber-200'
-                  }`}>
-                    <p className={`text-xs font-bold uppercase tracking-wider mb-1 ${
-                      verification.status === 'APPROVED' ? 'text-green-600' : 
-                      verification.status === 'REJECTED' ? 'text-red-600' : 
-                      'text-amber-600'
-                    }`}>Work Summary</p>
-                    <p className={`font-medium ${
-                      verification.status === 'APPROVED' ? 'text-green-900' : 
-                      verification.status === 'REJECTED' ? 'text-red-900' : 
-                      'text-amber-900'
-                    }`}>{verification.workSummary.replace(/_/g, ' ')}</p>
+                  <div className="bg-white p-4 rounded-2xl border border-green-200 sm:col-span-2">
+                    <p className="text-xs text-green-600 font-bold uppercase tracking-wider mb-1.5">Work Summary</p>
+                    <p className="font-bold text-green-900">{verification.workSummary.replace(/_/g, ' ')}</p>
                   </div>
                 )}
-                
                 {verification.notes && (
-                  <div className={`bg-white p-3 rounded-xl border sm:col-span-2 ${
-                    verification.status === 'APPROVED' ? 'border-green-200' : 
-                    verification.status === 'REJECTED' ? 'border-red-200' : 
-                    'border-amber-200'
-                  }`}>
-                    <p className={`text-xs font-bold uppercase tracking-wider mb-1 ${
-                      verification.status === 'APPROVED' ? 'text-green-600' : 
-                      verification.status === 'REJECTED' ? 'text-red-600' : 
-                      'text-amber-600'
-                    }`}>Notes / Feedback</p>
-                    <p className={`font-medium ${
-                      verification.status === 'APPROVED' ? 'text-green-900' : 
-                      verification.status === 'REJECTED' ? 'text-red-900' : 
-                      'text-amber-900'
-                    }`}>{verification.notes}</p>
+                  <div className="bg-white p-4 rounded-2xl border border-green-200 sm:col-span-2">
+                    <p className="text-xs text-green-600 font-bold uppercase tracking-wider mb-1.5">Notes</p>
+                    <p className="font-medium text-green-900">{verification.notes}</p>
                   </div>
                 )}
               </div>
@@ -270,82 +214,85 @@ const WorkerAfterWorkVerification = () => {
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-6">
-          
-          {verification && verification.status === 'REVISION_REQUESTED' && (
-            <div className="bg-red-50 border-2 border-red-200 p-6 rounded-2xl flex items-start gap-4">
-              <AlertTriangle className="w-6 h-6 text-red-600 flex-shrink-0" />
-              <div>
-                <h3 className="text-red-800 font-bold mb-1">Revision Requested</h3>
-                <p className="text-sm text-red-700 mb-2 font-medium">Manager Note: {verification.notes}</p>
-                <p className="text-xs text-red-600">Please provide the updated details and evidence below to resubmit.</p>
-              </div>
-            </div>
-          )}
-
           {/* Location Verification Section */}
-          <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] overflow-hidden">
-            <div className="p-6 border-b border-[#E2E8F0] bg-slate-50">
-              <div className="flex items-center gap-2 mb-1">
-                <MapPin className="w-5 h-5 text-[#0F172A]" />
-                <h3 className="text-lg font-bold text-[#0F172A]">Location Verification</h3>
+          <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="p-6 sm:p-8 border-b border-slate-100 bg-slate-50">
+              <div className="flex items-center gap-3 mb-2">
+                <MapPin className="w-6 h-6 text-[#0B1F3A]" strokeWidth={2.5} />
+                <h3 className="text-xl font-extrabold text-slate-900">Location Verification</h3>
               </div>
-              <p className="text-sm text-[#64748B]">You must verify your location to submit proof of work.</p>
+              <p className="text-slate-500 font-medium">Verify you are at the correct location.</p>
             </div>
-            <div className="p-6">
+            
+            <div className="p-6 sm:p-8">
               {!latitude || !longitude ? (
-                <div className="flex flex-col items-center text-center p-6 bg-slate-50 rounded-xl border border-slate-200">
-                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                    <MapPin className="w-8 h-8 text-blue-600" />
+                <div className="text-center py-8">
+                  <div className="mx-auto w-20 h-20 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mb-6">
+                    <MapPin size={32} strokeWidth={2} />
                   </div>
-                  <h4 className="text-[#0F172A] font-bold mb-2">Capture Current Location</h4>
-                  <p className="text-sm text-[#64748B] mb-6 max-w-sm">Tap the button below to capture your GPS coordinates and prove you are on-site.</p>
+                  <h4 className="text-lg font-bold text-slate-900 mb-2">Verify Your Location</h4>
+                  <p className="text-slate-500 font-medium mb-8 max-w-sm mx-auto">
+                    We need to capture your current location to verify you are at the site.
+                  </p>
+                  
+                  {locationError && (
+                    <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-2xl border border-red-200 text-sm font-medium">
+                      {locationError}
+                    </div>
+                  )}
+                  
                   <button
                     type="button"
                     onClick={handleGetLocation}
                     disabled={gettingLocation}
-                    className="px-6 py-3 bg-[#0B1F3A] text-white font-bold rounded-xl hover:bg-[#12345B] transition-colors shadow-sm disabled:opacity-50"
+                    className="px-8 py-3.5 bg-[#0B1F3A] text-white font-bold rounded-xl hover:bg-[#12345B] disabled:opacity-50 transition-colors shadow-sm inline-flex items-center gap-2"
                   >
-                    {gettingLocation ? 'Capturing...' : 'Get My Current Location'}
+                    {gettingLocation ? (
+                      <>
+                        <div className="animate-spin h-5 w-5 border-2 border-white/20 border-t-white rounded-full"></div>
+                        Getting Location...
+                      </>
+                    ) : (
+                      <>
+                        <MapPin size={20} />
+                        Capture Location
+                      </>
+                    )}
                   </button>
-                  {locationError && (
-                    <div className="mt-4 p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-200 flex items-center gap-2">
-                      <AlertCircle size={16} />
-                      {locationError}
-                    </div>
-                  )}
                 </div>
               ) : (
-                <div className="p-6 bg-green-50 rounded-xl border border-green-200">
-                  <div className="flex items-start gap-4">
-                    <div className="p-2 bg-green-100 rounded-full flex-shrink-0">
-                      <Check className="w-6 h-6 text-green-600" />
-                    </div>
-                    <div className="w-full">
-                      <h4 className="text-green-800 font-bold mb-2">Location Captured</h4>
-                      <div className="grid grid-cols-2 gap-4 mb-4">
-                        <div className="bg-white p-3 rounded-lg border border-green-100">
-                          <p className="text-xs text-green-600 font-bold uppercase tracking-wider mb-1">Latitude</p>
-                          <p className="font-mono text-sm font-medium text-green-900">{latitude.toFixed(6)}</p>
+                <div className="flex items-start gap-4 sm:gap-6 bg-green-50 border border-green-200 rounded-2xl p-6 sm:p-8">
+                  <div className="p-2 bg-green-100 rounded-full flex-shrink-0">
+                    <CheckCircle2 className="w-8 h-8 text-green-600" strokeWidth={2.5} />
+                  </div>
+                  <div className="flex-1 w-full">
+                    <h4 className="text-lg font-bold text-green-800 mb-4">Location Verified</h4>
+                    
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="bg-white p-4 rounded-2xl border border-green-100">
+                          <p className="text-xs text-green-600 font-bold uppercase tracking-wider mb-1.5">Latitude</p>
+                          <p className="font-mono text-base font-bold text-green-900">{latitude.toFixed(6)}</p>
                         </div>
-                        <div className="bg-white p-3 rounded-lg border border-green-100">
-                          <p className="text-xs text-green-600 font-bold uppercase tracking-wider mb-1">Longitude</p>
-                          <p className="font-mono text-sm font-medium text-green-900">{longitude.toFixed(6)}</p>
+                        <div className="bg-white p-4 rounded-2xl border border-green-100">
+                          <p className="text-xs text-green-600 font-bold uppercase tracking-wider mb-1.5">Longitude</p>
+                          <p className="font-mono text-base font-bold text-green-900">{longitude.toFixed(6)}</p>
                         </div>
                       </div>
                       
                       {distanceKm !== null && (
-                        <div className={`p-3 rounded-lg flex items-start gap-3 border ${distanceKm <= 0.5 ? 'bg-white border-green-200' : 'bg-amber-50 border-amber-200'}`}>
+                        <div className="p-4 rounded-2xl flex items-start gap-4 border">
                           {distanceKm <= 0.5 ? (
-                            <CheckCircle2 className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                            <CheckCircle2 className="w-6 h-6 text-green-500 mt-0.5 flex-shrink-0" strokeWidth={2.5} />
                           ) : (
-                            <AlertTriangle className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                            <AlertTriangle className="w-6 h-6 text-amber-500 mt-0.5 flex-shrink-0" strokeWidth={2.5} />
                           )}
                           <div>
-                            <p className={`font-medium ${distanceKm <= 0.5 ? 'text-green-800' : 'text-amber-800'}`}>
+                            <p className="font-bold">
                               Distance from issue: {distanceKm.toFixed(2)} km
                             </p>
                             {distanceKm > 0.5 && (
-                              <p className="text-sm text-amber-700 mt-1">You might be too far away from the reported location.</p>
+                              <p className="text-sm text-amber-700 mt-1 font-medium">You might be too far away from the reported location.</p>
                             )}
                           </div>
                         </div>
@@ -354,7 +301,7 @@ const WorkerAfterWorkVerification = () => {
                       <button
                         type="button"
                         onClick={handleGetLocation}
-                        className="mt-4 text-sm font-semibold text-[#3B82F6] hover:text-blue-700 underline"
+                        className="mt-2 text-sm font-bold text-[#3B82F6] hover:text-blue-700 underline"
                       >
                         Recapture Location
                       </button>
@@ -366,22 +313,22 @@ const WorkerAfterWorkVerification = () => {
           </div>
 
           {/* Work Summary & Evidence Section */}
-          <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] overflow-hidden">
-            <div className="p-6 border-b border-[#E2E8F0] bg-slate-50">
-              <div className="flex items-center gap-2 mb-1">
-                <FileText className="w-5 h-5 text-[#0F172A]" />
-                <h3 className="text-lg font-bold text-[#0F172A]">Work Summary</h3>
+          <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="p-6 sm:p-8 border-b border-slate-100 bg-slate-50">
+              <div className="flex items-center gap-3 mb-2">
+                <FileText className="w-6 h-6 text-[#0B1F3A]" strokeWidth={2.5} />
+                <h3 className="text-xl font-extrabold text-slate-900">Work Summary</h3>
               </div>
-              <p className="text-sm text-[#64748B]">Provide final status and visual evidence of completion.</p>
+              <p className="text-slate-500 font-medium">Provide final status and visual evidence of completion.</p>
             </div>
-            <div className="p-6 space-y-5">
+            <div className="p-6 sm:p-8 space-y-6">
               
               <div>
-                <label className="block text-sm font-bold text-[#0F172A] mb-2">Overall Work Summary</label>
+                <label className="block text-sm font-bold text-slate-900 mb-2">Overall Work Summary</label>
                 <select
                   value={workSummary}
                   onChange={(e) => setWorkSummary(e.target.value)}
-                  className="w-full border-2 border-[#E2E8F0] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-4 focus:ring-[#3B82F6]/10 focus:border-[#3B82F6] transition-all bg-white appearance-none"
+                  className="w-full border-2 border-slate-200 rounded-2xl px-4 py-3.5 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all bg-white appearance-none text-slate-900"
                 >
                   <option value="">Select status...</option>
                   <option value="FULLY_RESOLVED">Fully Resolved</option>
@@ -391,25 +338,25 @@ const WorkerAfterWorkVerification = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-[#0F172A] mb-2">Detailed Notes</label>
+                <label className="block text-sm font-bold text-slate-900 mb-2">Detailed Notes</label>
                 <textarea
                   rows="3"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full border-2 border-[#E2E8F0] rounded-xl p-4 text-sm focus:outline-none focus:ring-4 focus:ring-[#3B82F6]/10 focus:border-[#3B82F6] transition-all bg-white placeholder:text-slate-400"
+                  className="w-full border-2 border-slate-200 rounded-2xl p-4 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all bg-white placeholder:text-slate-400 text-slate-900"
                   placeholder="Describe the final state of the work done..."
                 ></textarea>
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-[#0F172A] mb-2">After-Work Evidence (Photos/Videos)</label>
+                <label className="block text-sm font-bold text-slate-900 mb-2">After-Work Evidence (Photos/Videos)</label>
                 
-                <div className="border-2 border-dashed border-[#E2E8F0] rounded-xl p-6 text-center hover:bg-slate-50 transition-colors">
-                  <Camera className="mx-auto h-10 w-10 text-[#64748B] mb-3" />
-                  <p className="text-sm font-medium text-[#0F172A] mb-1">Capture or Select Media</p>
-                  <p className="text-xs text-[#64748B] mb-4">Max 5 files (Images or Videos)</p>
+                <div className="border-2 border-dashed border-slate-200 rounded-2xl p-8 text-center hover:bg-slate-50 transition-colors">
+                  <Camera className="mx-auto h-12 w-12 text-slate-400 mb-4" />
+                  <p className="text-base font-bold text-slate-900 mb-1">Capture or Select Media</p>
+                  <p className="text-sm text-slate-500 font-medium mb-6">Max 5 files (Images or Videos)</p>
                   
-                  <label className="cursor-pointer inline-flex px-6 py-2.5 bg-white border-2 border-[#E2E8F0] text-[#0F172A] font-bold rounded-xl hover:border-[#3B82F6] hover:text-[#3B82F6] transition-colors shadow-sm">
+                  <label className="cursor-pointer inline-flex px-8 py-3.5 bg-white border border-slate-200 text-slate-900 font-bold rounded-xl hover:bg-slate-50 transition-colors shadow-sm">
                     <span>Choose Files</span>
                     <input
                       type="file"
@@ -422,21 +369,21 @@ const WorkerAfterWorkVerification = () => {
                 </div>
 
                 {media.length > 0 && (
-                  <div className="mt-4 bg-slate-50 rounded-xl p-4 border border-[#E2E8F0]">
-                    <h4 className="text-xs font-bold text-[#64748B] uppercase tracking-wider mb-3">Selected Files ({media.length}/5)</h4>
-                    <ul className="space-y-2">
+                  <div className="mt-6 bg-slate-50 rounded-2xl p-6 border border-slate-200">
+                    <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Selected Files ({media.length}/5)</h4>
+                    <ul className="space-y-3">
                       {media.map((file, i) => (
-                        <li key={i} className="flex items-center justify-between bg-white p-3 rounded-lg border border-slate-200">
+                        <li key={i} className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
                           <div className="flex items-center overflow-hidden">
-                            <File className="w-5 h-5 text-[#3B82F6] mr-3 flex-shrink-0" />
-                            <span className="text-sm font-medium text-[#0F172A] truncate">{file.name}</span>
+                            <File className="w-6 h-6 text-blue-500 mr-4 flex-shrink-0" strokeWidth={2.5} />
+                            <span className="text-sm font-bold text-slate-900 truncate">{file.name}</span>
                           </div>
                           <button
                             type="button"
                             onClick={() => removeMedia(i)}
-                            className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors"
+                            className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                           >
-                            <X size={16} />
+                            <X size={20} strokeWidth={2.5} />
                           </button>
                         </li>
                       ))}
@@ -447,15 +394,15 @@ const WorkerAfterWorkVerification = () => {
             </div>
           </div>
 
-          <div className="pt-4">
+          <div className="pt-6">
             <button
               type="submit"
               disabled={submitting || !latitude || !longitude || !workSummary}
-              className="w-full bg-[#0F9D8A] text-white py-4 rounded-xl font-bold text-lg hover:bg-teal-600 disabled:opacity-50 transition-colors shadow-md flex justify-center items-center gap-2"
+              className="w-full bg-[#0F9D8A] text-white py-4 rounded-2xl font-bold text-lg hover:bg-teal-600 disabled:opacity-50 transition-colors shadow-lg flex justify-center items-center gap-3"
             >
               {submitting ? 'Submitting Verification...' : 'Submit After-Work Verification'}
             </button>
-            <p className="text-center text-xs text-[#64748B] mt-4">
+            <p className="text-center text-sm font-medium text-slate-500 mt-6 max-w-md mx-auto">
               Once submitted, the manager will review your work for appraisal.
             </p>
           </div>
@@ -466,3 +413,7 @@ const WorkerAfterWorkVerification = () => {
 };
 
 export default WorkerAfterWorkVerification;
+
+
+
+
