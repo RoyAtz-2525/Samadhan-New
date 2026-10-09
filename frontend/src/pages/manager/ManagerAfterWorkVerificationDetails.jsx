@@ -119,7 +119,7 @@ const ManagerAfterWorkVerificationDetails = () => {
           <p className="text-[#64748B] text-sm">Review final work photos and approve task completion.</p>
         </div>
         <span className={`px-4 py-1.5 inline-flex text-sm font-bold uppercase tracking-wider rounded-lg border ${getStatusStyle(verification.status)}`}>
-          {verification.status.replace(/_/g, ' ')}
+          {verification.status?.replace(/_/g, ' ') || 'UNKNOWN'}
         </span>
       </div>
 

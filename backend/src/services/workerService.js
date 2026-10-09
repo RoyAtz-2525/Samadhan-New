@@ -624,7 +624,36 @@ const acknowledgeAppraisal = async (userId, appraisalId) => {
   return result;
 };
 
+
+const updateWorkerLocation = async (userId, latitude, longitude) => {
+    const profile = await prisma.workerProfile.findUnique({
+        where: { userId },
+        select: { id: true }
+    });
+
+    if (!profile) throw new ApiError(404, 'Worker profile not found');
+
+    const location = await prisma.workerLocation.upsert({
+        where: { workerId: profile.id },
+        update: {
+            latitude: parseFloat(latitude),
+            longitude: parseFloat(longitude),
+            isOnline: true,
+            lastUpdated: new Date()
+        },
+        create: {
+            workerId: profile.id,
+            latitude: parseFloat(latitude),
+            longitude: parseFloat(longitude),
+            isOnline: true
+        }
+    });
+
+    return location;
+};
+
 module.exports = {
+    updateWorkerLocation,
   getDashboardMetrics,
   getAssignments,
   getAssignmentDetails,

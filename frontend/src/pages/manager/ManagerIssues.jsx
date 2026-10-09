@@ -131,7 +131,7 @@ const ManagerIssues = () => {
                         </span>
                       </div>
                       <div className="text-xs text-[#64748B] font-mono mt-1 ml-6">
-                        {issue.latitude?.toFixed(4)}, {issue.longitude?.toFixed(4)}
+                        {issue.latitude != null ? Number(issue.latitude).toFixed(4) : ''}, {issue.longitude != null ? Number(issue.longitude).toFixed(4) : ''}
                       </div>
                     </td>
                     <td className="px-6 py-5 whitespace-nowrap">

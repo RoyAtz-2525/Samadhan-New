@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import workerService from '../../services/workerService';
 import { MapPin, Calendar, IndianRupee, AlertCircle, FileText, CheckCircle2, XCircle, ArrowLeft, Image as ImageIcon, Camera, Play, ClipboardList, Briefcase, ChevronRight, User } from 'lucide-react';
+import MapboxMap from '../../components/maps/MapboxMap';
 import { format } from 'date-fns';
 
 const WorkerAssignmentDetails = () => {

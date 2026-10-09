@@ -13,6 +13,8 @@ router.get('/assignments', workerController.getAssignments);
 router.get('/assignments/:id', workerController.getAssignmentDetails);
 router.patch('/assignments/:id/respond', respondAssignmentValidator, workerController.respondToAssignment);
 
+router.post('/location', workerController.updateLocation);
+
 const upload = require('../middleware/uploadMiddleware');
 const { workProgressValidator, workCompleteValidator } = require('../validators/workerValidators');
 

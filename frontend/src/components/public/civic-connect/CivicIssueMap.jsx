@@ -1,7 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import MapboxMap from '../../maps/MapboxMap';
 import { MapPin, Filter, Layers } from 'lucide-react';
 
 const CivicIssueMap = () => {
+  const [publicIssues, setPublicIssues] = useState([]);
+  
+  useEffect(() => {
+    // In a real implementation, this would fetch from /api/issues/public-map
+    // Fetching minimal safe data: id, title, latitude, longitude, status, category
+    // For now, we leave it empty or mock a few for demonstration if needed.
+    const fetchPublicIssues = async () => {
+      try {
+        // const response = await fetch('/api/issues/public-map');
+        // const data = await response.json();
+        // setPublicIssues(data);
+        
+        // Mock data
+        setPublicIssues([
+          { id: '1', title: 'Pothole on Main Road', category: 'Road', status: 'OPEN', latitude: 28.6139, longitude: 77.2090 },
+          { id: '2', title: 'Streetlight not working', category: 'Street Light', status: 'IN_PROGRESS', latitude: 28.6239, longitude: 77.2190 },
+          { id: '3', title: 'Water leakage', category: 'Water', status: 'RESOLVED', latitude: 28.6039, longitude: 77.1990 },
+        ]);
+      } catch (err) {
+        console.error("Failed to fetch public map data", err);
+      }
+    };
+    
+    fetchPublicIssues();
+  }, []);
+
   const [activeFilter, setActiveFilter] = useState('All');
   const filters = ['All', 'Road', 'Garbage', 'Water', 'Street Light', 'Drainage', 'Safety'];
 
@@ -61,16 +88,28 @@ const CivicIssueMap = () => {
 
         {/* Map Container */}
         <div className="w-full h-[500px] lg:h-[600px] bg-slate-200 rounded-3xl border border-slate-300 flex flex-col items-center justify-center relative overflow-hidden shadow-inner">
-          <Layers className="h-16 w-16 text-slate-400 mb-4" />
-          <h3 className="text-xl font-bold text-slate-700 mb-2">Interactive Map Area</h3>
-          <p className="text-slate-500 max-w-md text-center">
-            Mapbox integration pending. Public-safe civic information markers will appear here in future updates.
-          </p>
-          
-          {/* Simulated aesthetic map elements for the placeholder */}
-          <div className="absolute top-1/4 left-1/4 w-4 h-4 bg-blue-500 rounded-full shadow-[0_0_0_6px_rgba(59,130,246,0.2)] animate-pulse"></div>
-          <div className="absolute top-1/2 right-1/3 w-4 h-4 bg-amber-500 rounded-full shadow-[0_0_0_6px_rgba(245,158,11,0.2)]"></div>
-          <div className="absolute bottom-1/3 left-1/2 w-4 h-4 bg-teal-500 rounded-full shadow-[0_0_0_6px_rgba(20,184,166,0.2)]"></div>
+          <MapboxMap 
+            height="100%"
+            zoom={12}
+            center={[78.9629, 20.5937]}
+            markers={publicIssues.filter(i => (activeFilter === 'All' || i.category === activeFilter)).map(i => ({
+              id: i.id,
+              longitude: i.longitude,
+              latitude: i.latitude,
+              color: i.status === 'RESOLVED' ? '#14b8a6' : i.status === 'IN_PROGRESS' ? '#f59e0b' : '#3b82f6',
+              popupHTML: `
+                <div class="text-sm font-sans p-1">
+                  <p class="font-bold mb-1">${i.title}</p>
+                  <p class="text-xs text-gray-500 mb-2">${i.category}</p>
+                  <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold text-white" 
+                    style="background-color: ${i.status === 'RESOLVED' ? '#14b8a6' : i.status === 'IN_PROGRESS' ? '#f59e0b' : '#3b82f6'}">
+                    ${i.status}
+                  </span>
+                </div>
+              `
+            }))}
+            className="absolute inset-0"
+          />
         </div>
       </div>
     </section>

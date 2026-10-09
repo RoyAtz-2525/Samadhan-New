@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getIssueCategories, createIssue } from '../../services/issueService';
+import IssueLocationPicker from '../../components/maps/IssueLocationPicker';
 import { MapPin, Upload, X, AlertCircle, Loader, FileImage, FileText, LayoutList, Navigation, CheckCircle2 } from 'lucide-react';
 
 const ReportIssue = () => {
@@ -227,38 +228,7 @@ const ReportIssue = () => {
           </div>
           
           <div className="p-6 sm:p-8">
-            <div className="bg-slate-50 border border-[#E2E8F0] rounded-2xl p-6 mb-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-                <div>
-                  <h3 className="font-bold text-[#0F172A] mb-1">GPS Coordinates</h3>
-                  <p className="text-sm text-[#64748B]">Precise coordinates help exact localization.</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={getLocation}
-                  disabled={locationLoading}
-                  className="bg-white border-2 border-[#E2E8F0] text-[#0B1F3A] px-5 py-2.5 rounded-xl hover:border-[#0F9D8A] hover:text-[#0F9D8A] hover:bg-[#0F9D8A]/5 flex items-center justify-center transition-all font-bold disabled:opacity-50 disabled:pointer-events-none"
-                >
-                  {locationLoading ? <Loader className="animate-spin mr-2" size={18} /> : <Navigation className="mr-2" size={18} />}
-                  {formData.latitude ? 'Update Location' : 'Use Current Location'}
-                </button>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-[#64748B] mb-1 uppercase tracking-wider">Latitude</label>
-                  <div className="bg-white border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm font-mono text-[#0F172A]">
-                    {formData.latitude || 'Not set'}
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-[#64748B] mb-1 uppercase tracking-wider">Longitude</label>
-                  <div className="bg-white border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm font-mono text-[#0F172A]">
-                    {formData.longitude || 'Not set'}
-                  </div>
-                </div>
-              </div>
-            </div>
+            <IssueLocationPicker onLocationSelect={(loc) => setFormData({...formData, latitude: loc.latitude, longitude: loc.longitude})} />
 
             <div>
               <label className="block text-sm font-bold text-[#0F172A] mb-2">Detailed Address / Landmark <span className="text-slate-400 font-normal">(Optional)</span></label>

@@ -98,7 +98,7 @@ const ManagerWorkers = () => {
               <div className="p-6">
                 <div className="flex items-center space-x-4 mb-5">
                   <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#0F9D8A] to-[#0B1F3A] flex items-center justify-center text-white font-black text-xl border-4 border-white shadow-md group-hover:scale-105 transition-transform shrink-0">
-                    {worker.user?.name?.charAt(0).toUpperCase() || 'W'}
+                    {worker.user?.name ? worker.user.name.charAt(0).toUpperCase() : 'W'}
                   </div>
                   <div className="min-w-0">
                     <h3 className="text-lg font-black text-[#0F172A] truncate" title={worker.user?.name}>
@@ -106,7 +106,7 @@ const ManagerWorkers = () => {
                     </h3>
                     <div className="flex items-center mt-0.5 bg-amber-50 px-2 py-0.5 rounded-md w-fit border border-amber-100">
                       <Star size={12} className="text-amber-500 fill-current" />
-                      <span className="text-xs font-black text-amber-900 ml-1.5">{worker.rating ? worker.rating.toFixed(1) : 'N/A'}</span>
+                      <span className="text-xs font-black text-amber-900 ml-1.5">{worker.rating != null ? Number(worker.rating).toFixed(1) : 'N/A'}</span>
                     </div>
                   </div>
                 </div>
