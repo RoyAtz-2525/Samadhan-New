@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import MapboxMap from '../../components/maps/MapboxMap';
 import { getIssueDetails, getReview, getFeedback, submitReview, submitFeedback } from '../../services/issueService';
 import { MapPin, Calendar, Tag, AlertCircle, ArrowLeft, Image as ImageIcon, Video, Clock, CheckCircle2, Star, ThumbsUp, AlignLeft } from 'lucide-react';
 import { format } from 'date-fns';
@@ -210,36 +211,52 @@ const IssueDetails = () => {
           </div>
 
           {/* Location Details */}
-          {(issue.address || (issue.latitude && issue.longitude)) && (
-            <div className="bg-white rounded-3xl shadow-sm border border-[#E2E8F0] p-6 sm:p-8">
-              <h3 className="text-lg font-bold text-[#0B1F3A] mb-4 flex items-center">
-                <MapPin size={20} className="mr-2 text-[#0F9D8A]" />
-                Location
-              </h3>
-              
-              <div className="bg-slate-50 border border-[#E2E8F0] rounded-2xl p-5">
-                {issue.address && (
-                  <p className="text-[#0F172A] font-medium mb-3 flex items-start">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#0F9D8A] mt-2 mr-3 flex-shrink-0"></span>
-                    {issue.address}
-                  </p>
-                )}
+            {(issue.address || (issue.latitude && issue.longitude)) && (
+              <div className="bg-white rounded-3xl shadow-sm border border-[#E2E8F0] p-6 sm:p-8 mb-6">
+                <h3 className="text-lg font-bold text-[#0B1F3A] mb-4 flex items-center">
+                  <MapPin size={20} className="mr-2 text-[#0F9D8A]" />
+                  Location
+                </h3>
                 
-                {issue.latitude && issue.longitude && (
-                  <div className="flex gap-4 border-t border-[#E2E8F0] pt-3 mt-3">
-                    <div>
-                      <span className="text-xs font-bold text-[#64748B] uppercase tracking-wider block mb-0.5">Latitude</span>
-                      <span className="text-sm font-mono text-[#0F172A]">{issue.latitude.toFixed(6)}</span>
-                    </div>
-                    <div>
-                      <span className="text-xs font-bold text-[#64748B] uppercase tracking-wider block mb-0.5">Longitude</span>
-                      <span className="text-sm font-mono text-[#0F172A]">{issue.longitude.toFixed(6)}</span>
-                    </div>
+                <div className="bg-slate-50 border border-[#E2E8F0] rounded-2xl overflow-hidden mb-4">
+                  {issue.latitude && issue.longitude && (
+                    <MapboxMap
+                      center={[issue.longitude, issue.latitude]}
+                      zoom={15}
+                      markers={[{
+                        id: issue.id || issue._id,
+                        longitude: issue.longitude,
+                        latitude: issue.latitude,
+                        color: issue.status === 'RESOLVED' ? '#10b981' : issue.status === 'IN_PROGRESS' ? '#3b82f6' : '#f59e0b',
+                        popupHTML: `<div class="font-sans font-bold p-1">${issue.title}</div>`
+                      }]}
+                      height="300px"
+                    />
+                  )}
+                </div>
+
+                {issue.address && (
+                  <div className="bg-slate-50 border border-[#E2E8F0] rounded-2xl p-5">
+                    <p className="text-[#0F172A] font-medium mb-3 flex items-start">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#0F9D8A] mt-2 mr-3 flex-shrink-0"></span>
+                      {issue.address}
+                    </p>
+                    {issue.latitude && issue.longitude && (
+                      <div className="flex gap-4 border-t border-[#E2E8F0] pt-3 mt-3">
+                        <div>
+                          <span className="text-xs font-bold text-[#64748B] uppercase tracking-wider block mb-0.5">Latitude</span>
+                          <span className="text-sm font-mono text-[#0F172A]">{issue.latitude.toFixed(6)}</span>
+                        </div>
+                        <div>
+                          <span className="text-xs font-bold text-[#64748B] uppercase tracking-wider block mb-0.5">Longitude</span>
+                          <span className="text-sm font-mono text-[#0F172A]">{issue.longitude.toFixed(6)}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
-            </div>
-          )}
+            )}
 
           {/* Media Evidence */}
           {issue.media && issue.media.length > 0 && (

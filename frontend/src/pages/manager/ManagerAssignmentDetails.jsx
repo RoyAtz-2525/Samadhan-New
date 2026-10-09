@@ -500,7 +500,7 @@ const ManagerAssignmentDetails = () => {
                       Name
                     </p>
                     <p className="font-black text-[#0F172A] text-lg">
-                      {worker.user.name}
+                      {worker.user?.name || 'Unknown User'}
                     </p>
                   </div>
                   <div>
@@ -508,7 +508,7 @@ const ManagerAssignmentDetails = () => {
                       Email
                     </p>
                     <p className="font-medium text-[#0F172A] break-all">
-                      {worker.user.email}
+                      {worker.user?.email || 'No Email'}
                     </p>
                   </div>
                   <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">

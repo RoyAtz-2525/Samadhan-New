@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Briefcase, CheckCircle, Clock, FileCheck, IndianRupee, Star, MapPin, ChevronRight, AlertCircle } from 'lucide-react';
+import MapboxMap from '../../components/maps/MapboxMap';
 import workerService from '../../services/workerService';
+import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { format } from 'date-fns';
 
@@ -11,8 +13,41 @@ const WorkerDashboard = () => {
   const [performance, setPerformance] = useState(null);
   const [appraisals, setAppraisals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [updatingLocation, setUpdatingLocation] = useState(false);
+  const [locationError, setLocationError] = useState(null);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
+
+  
+  const updateLocation = () => {
+    setUpdatingLocation(true);
+    setLocationError(null);
+    if (!navigator.geolocation) {
+      setLocationError('Geolocation is not supported by your browser');
+      setUpdatingLocation(false);
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          await api.post('/worker/location', {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          });
+          alert('Location updated successfully!');
+        } catch (error) {
+          console.error(error);
+          setLocationError('Failed to update location on server');
+        } finally {
+          setUpdatingLocation(false);
+        }
+      },
+      (error) => {
+        setLocationError('Failed to get location from browser');
+        setUpdatingLocation(false);
+      }
+    );
+  };
 
   const fetchDashboard = async () => {
     try {

@@ -77,7 +77,7 @@ const SuperAdminLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA] flex flex-col md:flex-row font-sans">
+    <div className="h-screen overflow-hidden bg-[#F5F7FA] flex flex-col md:flex-row font-sans relative">
       {/* Mobile Header */}
       <div className="md:hidden bg-[#0B1F3A] text-white p-4 flex justify-between items-center z-20 shadow-md">
         <div className="flex items-center space-x-2">
@@ -90,7 +90,7 @@ const SuperAdminLayout = () => {
       </div>
 
       {/* Sidebar */}
-      <div className={`${isSidebarOpen ? 'block' : 'hidden'} md:block w-full md:w-64 bg-[#0B1F3A] text-white min-h-screen flex-shrink-0 flex flex-col z-20 absolute md:relative shadow-xl md:shadow-none`}>
+      <div className={`${isSidebarOpen ? 'block' : 'hidden'} md:block w-full md:w-64 bg-[#0B1F3A] text-white h-full flex-shrink-0 flex flex-col z-20 absolute md:relative shadow-xl md:shadow-none`}>
         <div className="hidden md:flex flex-col p-6 items-start border-b border-[#12345B]">
           <img src="/logo.png" alt="Samadhan Logo" className="h-10 brightness-0 invert mb-1" />
           <span className="text-xs font-semibold tracking-wider text-[#0F9D8A] uppercase ml-1">Platform Control</span>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import MapboxMap from '../../components/maps/MapboxMap';
 import { getAdminIssueDetails, reviewIssue, updateIssuePriority } from '../../services/adminService';
 import { format } from 'date-fns';
 import { AlertCircle, MapPin, CheckCircle, XCircle, ArrowLeft, Image as ImageIcon, Video, Clock, Flag, Search, User, Info, FileText } from 'lucide-react';
@@ -202,24 +203,43 @@ const AdminIssueDetails = () => {
             </div>
 
             {/* Location Section */}
-            <div className="border-t border-[#E2E8F0] p-8 bg-slate-50">
-              <h3 className="text-xl font-bold text-[#0B1F3A] mb-6 flex items-center gap-2">
-                <MapPin size={20} className="text-[#0F9D8A]" /> Location Details
-              </h3>
-              
-              <div className="bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-sm">
-                <p className="text-[#0F172A] font-medium text-lg mb-4">
-                  {issue.address || 'Address not provided'}
-                </p>
-                <div className="flex items-center gap-2 text-sm font-mono bg-slate-100 p-3 rounded-lg w-fit text-[#64748B]">
-                  <MapPin size={16} />
-                  {issue.latitude?.toFixed(5)}, {issue.longitude?.toFixed(5)}
+              <div className="border-t border-[#E2E8F0] p-8 bg-slate-50">
+                <h3 className="text-xl font-bold text-[#0B1F3A] mb-6 flex items-center gap-2">
+                  <MapPin size={20} className="text-[#0F9D8A]" /> Location Details
+                </h3>
+                
+                {issue.latitude && issue.longitude && (
+                  <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-sm overflow-hidden mb-6">
+                    <MapboxMap
+                      center={[issue.longitude, issue.latitude]}
+                      zoom={15}
+                      markers={[{
+                        id: issue.id || issue._id || '1',
+                        longitude: issue.longitude,
+                        latitude: issue.latitude,
+                        color: issue.status === 'RESOLVED' ? '#10b981' : issue.status === 'IN_PROGRESS' ? '#3b82f6' : '#f59e0b',
+                        popupHTML: "<div class='font-sans font-bold p-1'>" + issue.title + "</div>"
+                      }]}
+                      height="350px"
+                    />
+                  </div>
+                )}
+                
+                <div className="bg-white p-6 rounded-2xl border border-[#E2E8F0] shadow-sm">
+                  <p className="text-[#0F172A] font-medium text-lg mb-4">
+                    {issue.address || 'Address not provided'}
+                  </p>
+                  {issue.latitude && issue.longitude && (
+                    <div className="flex items-center gap-2 text-sm font-mono bg-slate-100 p-3 rounded-lg w-fit text-[#64748B]">
+                      <MapPin size={16} />
+                      {issue.latitude?.toFixed(5)}, {issue.longitude?.toFixed(5)}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Evidence Gallery */}
+            {/* Evidence Gallery */}
           <div className="bg-white rounded-3xl shadow-sm border border-[#E2E8F0] overflow-hidden p-8">
             <h3 className="text-xl font-bold text-[#0B1F3A] mb-6 flex items-center gap-2">
               <ImageIcon size={20} className="text-[#0F9D8A]" /> 

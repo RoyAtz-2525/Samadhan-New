@@ -45,9 +45,9 @@ const ManagerWorkerDetails = () => {
         managerService.getWorkerPerformance(id),
         managerService.getAppraisals(id)
       ]);
-      setWorker(workerRes.data);
-      setPerformance(perfRes.data);
-      setAppraisals(appRes.data);
+      setWorker(workerRes.data || {});
+      setPerformance(perfRes.data || {});
+      setAppraisals(Array.isArray(appRes.data) ? appRes.data : (appRes.data?.appraisals || []));
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch details');
     } finally {
@@ -154,19 +154,19 @@ const ManagerWorkerDetails = () => {
         
         <div className="flex items-center gap-6">
           <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#0F9D8A] to-[#0B1F3A] flex items-center justify-center text-white font-black text-4xl border-4 border-white shadow-lg shrink-0">
-            {worker.user.name.charAt(0).toUpperCase()}
+            {worker.user?.name ? worker.user.name.charAt(0).toUpperCase() : 'W'}
           </div>
           <div>
-            <h1 className="text-3xl font-black text-[#0B1F3A] tracking-tight mb-1">{worker.user.name}</h1>
-            <p className="text-[#64748B] text-lg font-medium mb-3">{worker.user.email} • {worker.user.phone}</p>
+            <h1 className="text-3xl font-black text-[#0B1F3A] tracking-tight mb-1">{worker.user?.name || 'Unknown User'}</h1>
+            <p className="text-[#64748B] text-lg font-medium mb-3">{worker.user?.email || 'No Email'} • {worker.user?.phone || 'No Phone'}</p>
             <div className="flex flex-wrap gap-2">
               <span className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-lg border flex items-center gap-1.5 ${getStatusStyle(worker.status)}`}>
                 <div className={`w-1.5 h-1.5 rounded-full ${worker.status === 'AVAILABLE' ? 'bg-green-500' : worker.status === 'BUSY' ? 'bg-blue-500' : 'bg-amber-500'}`}></div>
-                {worker.status.replace(/_/g, ' ')}
+                {String(worker.status || 'UNKNOWN').replace(/_/g, ' ')}
               </span>
               <span className="px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold uppercase tracking-wider rounded-lg flex items-center gap-1.5">
                 <Star size={12} className="fill-current" />
-                {performance?.reviews?.averageRating ? parseFloat(performance.reviews.averageRating).toFixed(1) : 'N/A'} Rating
+                {performance?.reviews?.averageRating ? parseFloat(performance?.reviews?.averageRating).toFixed(1) : 'N/A'} Rating
               </span>
             </div>
           </div>
@@ -181,13 +181,13 @@ const ManagerWorkerDetails = () => {
              <p className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider mb-0.5">Location</p>
              <p className="font-bold text-[#0F172A] truncate flex items-center">
                 <MapPin size={12} className="mr-1 text-[#0F9D8A]" />
-                {worker.currentLocation ? 'Active Tracking' : `${worker.latitude?.substring(0,6)}, ${worker.longitude?.substring(0,6)}`}
+                {worker.currentLocation ? 'Active Tracking' : `${String(worker.latitude || '').substring(0,6)}, ${String(worker.longitude || '').substring(0,6)}`}
              </p>
            </div>
            <div className="col-span-2 bg-slate-50 p-3 rounded-xl border border-slate-200 md:text-left">
              <p className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider mb-1">Registered Skills</p>
              <div className="flex flex-wrap gap-1">
-               {worker.skills.map((skill, i) => (
+               {(Array.isArray(worker.skills) ? worker.skills : []).map((skill, i) => (
                  <span key={i} className="px-2 py-0.5 bg-white border border-slate-200 rounded text-xs font-semibold text-[#0F172A]">
                    {skill}
                  </span>
@@ -240,12 +240,12 @@ const ManagerWorkerDetails = () => {
                 <h3 className="text-xs font-bold text-[#64748B] uppercase tracking-wider mb-2 relative z-10">Citizen Rating</h3>
                 <div className="flex items-baseline gap-2 relative z-10">
                   <span className="text-4xl font-black text-[#0F172A]">
-                    {performance.reviews.averageRating ? parseFloat(performance.reviews.averageRating).toFixed(1) : '0.0'}
+                    {performance?.reviews?.averageRating ? parseFloat(performance?.reviews?.averageRating).toFixed(1) : '0.0'}
                   </span>
                   <span className="text-lg font-bold text-[#64748B]">/ 5.0</span>
                 </div>
                 <p className="text-sm font-semibold text-indigo-600 mt-3 relative z-10 bg-indigo-50 w-fit px-2 py-0.5 rounded-md">
-                  Based on {performance.reviews.totalReviews} reviews
+                  Based on {performance?.reviews?.totalReviews || 0} reviews
                 </p>
               </div>
 
@@ -255,7 +255,7 @@ const ManagerWorkerDetails = () => {
                 <h3 className="text-xs font-bold text-[#64748B] uppercase tracking-wider mb-2 relative z-10">Total Earnings</h3>
                 <div className="flex items-baseline relative z-10">
                   <span className="text-4xl font-black text-[#0F172A]">
-                    {performance.earnings.totalEarned}
+                    {performance?.earnings?.totalEarned || 0}
                   </span>
                 </div>
                 <p className="text-sm font-semibold text-green-600 mt-3 relative z-10 bg-green-50 w-fit px-2 py-0.5 rounded-md">
@@ -269,8 +269,8 @@ const ManagerWorkerDetails = () => {
                 <h3 className="text-xs font-bold text-[#64748B] uppercase tracking-wider mb-2 relative z-10">Work Quality</h3>
                 <div className="flex items-baseline gap-1 relative z-10">
                   <span className="text-4xl font-black text-[#0F172A]">
-                    {performance.verification.totalAfterWork > 0 
-                      ? Math.round((performance.verification.approved / performance.verification.totalAfterWork) * 100) 
+                    {(performance?.verification?.totalAfterWork || 0) > 0 
+                      ? Math.round(((performance?.verification?.approved || 0) / (performance?.verification?.totalAfterWork || 1)) * 100) 
                       : 0}
                   </span>
                   <span className="text-2xl font-black text-[#64748B]">%</span>
@@ -286,7 +286,7 @@ const ManagerWorkerDetails = () => {
                 <h3 className="text-xs font-bold text-[#64748B] uppercase tracking-wider mb-2 relative z-10">Avg Completion</h3>
                 <div className="flex items-baseline gap-2 relative z-10">
                   <span className="text-4xl font-black text-[#0F172A]">
-                    {performance.assignments.averageCompletionTimeHours}
+                    {performance?.assignments?.averageCompletionTimeHours || 0}
                   </span>
                   <span className="text-lg font-bold text-[#64748B]">hrs</span>
                 </div>
@@ -302,21 +302,21 @@ const ManagerWorkerDetails = () => {
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                  <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100">
-                    <p className="text-3xl font-black text-[#0F172A] mb-1">{performance.assignments.totalCompleted}</p>
+                    <p className="text-3xl font-black text-[#0F172A] mb-1">{performance?.assignments?.totalCompleted || 0}</p>
                     <p className="text-xs font-bold text-[#64748B] uppercase tracking-wider">Total Completed</p>
                  </div>
                  <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100">
-                    <p className="text-3xl font-black text-[#0F172A] mb-1">{performance.assignments.currentlyActive}</p>
+                    <p className="text-3xl font-black text-[#0F172A] mb-1">{performance?.assignments?.currentlyActive || 0}</p>
                     <p className="text-xs font-bold text-[#64748B] uppercase tracking-wider">Currently Active</p>
                  </div>
                  <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100">
-                    <p className="text-3xl font-black text-[#0F172A] mb-1">{performance.verification.rejected}</p>
+                    <p className="text-3xl font-black text-[#0F172A] mb-1">{performance?.verification?.rejected || 0}</p>
                     <p className="text-xs font-bold text-[#64748B] uppercase tracking-wider">Rejected Work</p>
                  </div>
                  <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100">
                     <p className="text-3xl font-black text-[#0F172A] mb-1">
-                      {performance.assignments.totalCompleted > 0 
-                        ? Math.round((performance.verification.rejected / performance.assignments.totalCompleted) * 100) 
+                      {(performance?.assignments?.totalCompleted || 0) > 0 
+                        ? Math.round(((performance?.verification?.rejected || 0) / (performance?.assignments?.totalCompleted || 1)) * 100) 
                         : 0}%
                     </p>
                     <p className="text-xs font-bold text-[#64748B] uppercase tracking-wider">Rejection Rate</p>
@@ -442,7 +442,7 @@ const ManagerWorkerDetails = () => {
               </div>
             )}
 
-            {!showAppraisalForm && appraisals.length === 0 ? (
+            {!showAppraisalForm && (appraisals || []).length === 0 ? (
               <div className="bg-white rounded-3xl shadow-sm border border-[#E2E8F0] p-16 text-center">
                  <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-6">
                    <FileText className="h-10 w-10 text-[#64748B] opacity-50" />
@@ -452,13 +452,13 @@ const ManagerWorkerDetails = () => {
               </div>
             ) : (
               <div className="space-y-6">
-                {appraisals.map((appraisal) => (
+                {(Array.isArray(appraisals) ? appraisals : []).map((appraisal) => (
                   <div key={appraisal.id} className="bg-white border border-[#E2E8F0] rounded-3xl shadow-sm overflow-hidden group hover:border-[#0B1F3A] transition-colors">
                     <div className="bg-slate-50 px-8 py-5 border-b border-[#E2E8F0] flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                       <div>
                         <div className="flex items-center gap-3 mb-1">
                           <h3 className="text-lg font-black text-[#0B1F3A]">
-                            {new Date(appraisal.periodStart).toLocaleDateString()} — {new Date(appraisal.periodEnd).toLocaleDateString()}
+                            {(appraisal.periodStart ? new Date(appraisal.periodStart).toLocaleDateString() : 'N/A')} — {(appraisal.periodEnd ? new Date(appraisal.periodEnd).toLocaleDateString() : 'N/A')}
                           </h3>
                           <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border ${
                             appraisal.status === 'DRAFT' ? 'bg-amber-100 text-amber-800 border-amber-200' :
@@ -469,7 +469,7 @@ const ManagerWorkerDetails = () => {
                           </span>
                         </div>
                         <p className="text-xs font-bold text-[#64748B] uppercase tracking-wider">
-                          Created {new Date(appraisal.createdAt).toLocaleDateString()}
+                          Created {(appraisal.createdAt ? new Date(appraisal.createdAt).toLocaleDateString() : 'N/A')}
                         </p>
                       </div>
                       

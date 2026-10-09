@@ -120,7 +120,22 @@ const acknowledgeAppraisal = async (req, res, next) => {
   }
 };
 
+
+const updateLocation = async (req, res, next) => {
+    try {
+        const { latitude, longitude } = req.body;
+        if (latitude === undefined || longitude === undefined) {
+            return res.status(400).json({ success: false, message: 'Latitude and longitude are required' });
+        }
+        const data = await workerService.updateWorkerLocation(req.user.id, latitude, longitude);
+        res.json({ success: true, message: 'Location updated successfully', data });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
+    updateLocation,
   getDashboard,
   getAssignments,
   getAssignmentDetails,

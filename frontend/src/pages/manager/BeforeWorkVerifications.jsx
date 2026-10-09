@@ -176,7 +176,7 @@ const BeforeWorkVerifications = () => {
                           <MapPin size={12} className={v.distanceKm > 1 ? 'text-red-500 mr-2' : 'text-[#64748B] mr-2'} />
                           {v.distanceKm !== null ? (
                             <span className={v.distanceKm > 1 ? 'text-red-600 bg-red-50 px-1.5 py-0.5 rounded' : ''}>
-                              {v.distanceKm.toFixed(2)} km from site
+                              {v.distanceKm != null ? Number(v.distanceKm).toFixed(2) : '--'} km from site
                             </span>
                           ) : (
                             'Distance Unknown'
