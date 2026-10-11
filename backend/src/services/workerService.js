@@ -1,5 +1,6 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const { attachSlaToAssignment } = require('./slaService');
+const { enqueueMediaCleanup } = require('../queues');
+const { prisma } = require('../config/db');
 
 const getWorkerProfile = async (userId) => {
   const profile = await prisma.workerProfile.findUnique({
@@ -250,10 +251,10 @@ const submitWorkProgress = async (userId, assignmentId, payload, files) => {
 
     return progressRecord;
   } catch (err) {
-    // Cleanup on fail
-    for (const m of uploadedMedia) {
-      await deleteFromCloudinary(m.publicId, m.type.toLowerCase());
-    }
+    // Cleanup on fail via background queue (or fallback)
+    enqueueMediaCleanup(uploadedMedia).catch((enqueueErr) => {
+      console.warn('[WorkerService] Failed to enqueue media cleanup:', enqueueErr.message);
+    });
     const error = new Error('Failed to save progress update: ' + err.message);
     error.statusCode = 500;
     throw error;
@@ -361,9 +362,9 @@ const completeWork = async (userId, assignmentId, payload, files) => {
 
     return result;
   } catch (err) {
-    for (const m of uploadedMedia) {
-      await deleteFromCloudinary(m.publicId, m.type.toLowerCase());
-    }
+    enqueueMediaCleanup(uploadedMedia).catch((enqueueErr) => {
+      console.warn('[WorkerService] Failed to enqueue media cleanup:', enqueueErr.message);
+    });
     const error = new Error('Failed to complete work: ' + err.message);
     error.statusCode = err.message.includes('concurrently') ? 409 : 500;
     throw error;

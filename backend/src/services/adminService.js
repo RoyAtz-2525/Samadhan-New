@@ -1,5 +1,7 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const { calculateDeadline } = require('../config/slaConfig');
+const { scheduleSlaDeadlineCheck, cancelSlaDeadlineCheck } = require('../queues/slaQueue');
+const { attachSlaToIssue, attachSlaToIssues } = require('./slaService');
+const { prisma } = require('../config/db');
 
 const getAdminDashboardMetrics = async () => {
   const metrics = await prisma.issue.groupBy({
@@ -85,12 +87,13 @@ const getIssueDetails = async (issueId) => {
     throw error;
   }
 
-  return issue;
+  return attachSlaToIssue(issue);
 };
 
 const reviewIssue = async (adminId, issueId, action, reason) => {
   const issue = await prisma.issue.findUnique({
-    where: { id: issueId }
+    where: { id: issueId },
+    include: { category: true, statusHistory: true }
   });
 
   if (!issue) {
@@ -133,6 +136,13 @@ const reviewIssue = async (adminId, issueId, action, reason) => {
       data: { status: newStatus }
     });
 
+    if (newStatus === 'APPROVED') {
+      const deadline = calculateDeadline(new Date(), issue.priority, issue.category?.name);
+      scheduleSlaDeadlineCheck(issueId, deadline).catch(() => {});
+    } else if (newStatus === 'REJECTED') {
+      cancelSlaDeadlineCheck(issueId).catch(() => {});
+    }
+
     await tx.issueStatusHistory.create({
       data: {
         issueId,
@@ -149,7 +159,8 @@ const reviewIssue = async (adminId, issueId, action, reason) => {
 
 const updateIssuePriority = async (adminId, issueId, priority) => {
   const issue = await prisma.issue.findUnique({
-    where: { id: issueId }
+    where: { id: issueId },
+    include: { category: true, statusHistory: true }
   });
 
   if (!issue) {
@@ -167,7 +178,27 @@ const updateIssuePriority = async (adminId, issueId, priority) => {
       data: { priority }
     });
 
-    return updatedIssue;
+    // Reference start time is approval timestamp if approved, otherwise createdAt
+    const approvedEntry = issue.statusHistory?.find(h => h.newStatus === 'APPROVED');
+    const referenceTime = approvedEntry ? approvedEntry.timestamp : issue.createdAt;
+    const newDeadline = calculateDeadline(referenceTime, priority, issue.category?.name);
+    scheduleSlaDeadlineCheck(issueId, newDeadline).catch(() => {});
+
+    await tx.auditLog.create({
+      data: {
+        actorId: adminId,
+        action: 'ISSUE_PRIORITY_UPDATED',
+        entityType: 'ISSUE',
+        entityId: issueId,
+        metadata: {
+          oldPriority: issue.priority,
+          newPriority: priority,
+          newDeadline: newDeadline.toISOString(),
+        }
+      }
+    }).catch(() => {});
+
+    return attachSlaToIssue(updatedIssue);
   });
 };
 

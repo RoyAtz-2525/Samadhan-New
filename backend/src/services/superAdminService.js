@@ -1,5 +1,5 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const { attachSlaToIssues, attachSlaToIssue } = require('./slaService');
+const { prisma } = require('../config/db');
 
 class SuperAdminService {
   async getPlatformOverview() {

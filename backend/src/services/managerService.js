@@ -1,5 +1,6 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const { calculateDeadline } = require('../config/slaConfig');
+const { attachSlaToIssue, attachSlaToIssues, attachSlaToAssignment } = require('./slaService');
+const { prisma } = require('../config/db');
 const workerService = require('./workerService');
 
 // Haversine distance calculation in kilometers
@@ -86,7 +87,8 @@ const getApprovedIssues = async (filters = {}) => {
     query.where.priority = filters.priority;
   }
 
-  return await prisma.issue.findMany(query);
+  const issues = await prisma.issue.findMany(query);
+  return attachSlaToIssues(issues);
 };
 
 const getIssueDetails = async (issueId) => {
@@ -194,7 +196,8 @@ const createAssignment = async (managerUserId, payload) => {
   }
 
   const issue = await prisma.issue.findUnique({
-    where: { id: payload.issueId }
+    where: { id: payload.issueId },
+    include: { category: true, statusHistory: true }
   });
 
   if (!issue) {
@@ -237,12 +240,16 @@ const createAssignment = async (managerUserId, payload) => {
 
   return await prisma.$transaction(async (tx) => {
     // 1. Create WorkAssignment
+    const approvedEntry = issue.statusHistory?.find(h => h.newStatus === 'APPROVED');
+    const referenceTime = approvedEntry ? approvedEntry.timestamp : issue.createdAt;
+    const deadline = calculateDeadline(referenceTime, issue.priority, issue.category?.name);
     const assignment = await tx.workAssignment.create({
       data: {
         issueId: payload.issueId,
         workerId: payload.workerId,
         managerId: manager.id,
         assignedRate: payload.rate,
+        expectedCompletionDate: payload.expectedCompletionDate ? new Date(payload.expectedCompletionDate) : deadline,
         notes: payload.notes || null,
         status: 'PENDING'
       }
@@ -299,7 +306,7 @@ const getAssignments = async (managerUserId) => {
 
   if (!manager) return [];
 
-  return await prisma.workAssignment.findMany({
+  const assignments = await prisma.workAssignment.findMany({
     where: { managerId: manager.id },
     include: {
       issue: { select: { title: true, status: true, id: true } },

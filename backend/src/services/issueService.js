@@ -1,5 +1,5 @@
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+const { attachSlaToIssue, attachSlaToIssues } = require('./slaService');
+const { prisma } = require('../config/db');
 const streamifier = require("streamifier");
 
 const {
@@ -118,12 +118,10 @@ const createIssue = async (userId, data, files) => {
       },
     );
   } catch (error) {
-    // Transaction failed or upload failed, cleanup any uploaded Cloudinary assets
-    for (const asset of uploadedAssets) {
-      if (asset.publicId) {
-        await deleteFromCloudinary(asset.publicId, asset.resourceType);
-      }
-    }
+    // Transaction failed or upload failed, cleanup any uploaded Cloudinary assets via background queue (or fallback)
+    enqueueMediaCleanup(uploadedAssets).catch((err) => {
+      console.warn('[IssueService] Failed to enqueue media cleanup:', err.message);
+    });
     throw error;
   }
 };
@@ -156,7 +154,8 @@ const getCitizenIssues = async (userId, filters = {}) => {
     query.where.status = filters.status;
   }
 
-  return await prisma.issue.findMany(query);
+  const issues = await prisma.issue.findMany(query);
+  return attachSlaToIssues(issues);
 };
 
 const getCitizenIssueDetails = async (userId, issueId) => {
@@ -271,7 +270,7 @@ const submitReview = async (userId, issueId, data) => {
   });
 
   // Notify Worker
-  await prisma.notification.create({
+  const notification = await prisma.notification.create({
     data: {
       userId: assignment.worker.userId,
       type: "INFO",
@@ -281,6 +280,8 @@ const submitReview = async (userId, issueId, data) => {
       assignmentId: assignment.id,
     },
   });
+
+
 
   return review;
 };
