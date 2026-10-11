@@ -4,7 +4,7 @@ var http = require("http");
 var app = require("./app");
 var { connectDB } = require("./config/db");
 var { connectRedis, closeRedis } = require("./config/redis");
-var { initSocket } = require("./sockets");
+var { initSocket, getIO } = require("./sockets");
 var { startBackgroundWorkers, stopBackgroundWorkers } = require("./workers/worker");
 
 var PORT = process.env.PORT || 5000;
@@ -39,24 +39,45 @@ async function handleShutdown(signal) {
   isShuttingDown = true;
   console.log(`\n[Server] Received ${signal}. Starting graceful shutdown...`);
 
-  server.close(async () => {
-    console.log("[Server] HTTP server closed.");
-    try {
-      await stopBackgroundWorkers(signal);
-      await closeRedis();
-      console.log("[Server] Shutdown complete.");
-      process.exit(0);
-    } catch (err) {
-      console.error("[Server] Error during shutdown:", err.message);
-      process.exit(1);
-    }
-  });
-
-  // Safety fallback: force exit after 10s if connections fail to close
-  setTimeout(() => {
+  // Force exit safety fallback timeout
+  const fallbackTimer = setTimeout(() => {
     console.error("[Server] Forcefully shutting down after timeout.");
     process.exit(1);
-  }, 10000).unref();
+  }, 10000);
+  fallbackTimer.unref?.();
+
+  try {
+    // 1. Close Socket.io to cleanly disconnect realtime clients
+    try {
+      const ioInstance = getIO();
+      if (ioInstance) {
+        ioInstance.close();
+      }
+    } catch (_) {}
+
+    // 2. Stop background workers (drain and close queues & workers)
+    await stopBackgroundWorkers(signal);
+
+    // 3. Disconnect Redis caching client
+    await closeRedis();
+
+    // 4. Close HTTP server and terminate any open keep-alive connections
+    await new Promise((resolve) => {
+      server.close(() => {
+        console.log("[Server] HTTP server closed.");
+        resolve();
+      });
+      if (typeof server.closeAllConnections === "function") {
+        server.closeAllConnections();
+      }
+    });
+
+    console.log("[Server] Shutdown complete.");
+    process.exit(0);
+  } catch (err) {
+    console.error("[Server] Error during shutdown:", err.message);
+    process.exit(1);
+  }
 }
 
 process.on("SIGINT", () => handleShutdown("SIGINT"));
