@@ -294,7 +294,7 @@ const WorkerDashboard = () => {
                 </div>
               </div>
 
-              {/* Location Placeholder */}
+                            {/* Work Location Map */}
               <div className="bg-[#0B1F3A] rounded-3xl shadow-xl overflow-hidden flex flex-col relative border border-[#1e293b]">
                 <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjEiIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-50"></div>
                 <div className="p-6 sm:p-8 border-b border-white/10 flex justify-between items-center relative z-10">
@@ -303,13 +303,17 @@ const WorkerDashboard = () => {
                     Work Location
                   </h2>
                 </div>
-                <div className="h-48 bg-slate-900/50 flex flex-col items-center justify-center relative overflow-hidden backdrop-blur-sm z-10 p-6 text-center">
-                  <div className="absolute inset-0 bg-teal-400 blur-xl opacity-20 rounded-full animate-pulse"></div>
-                  <div className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-teal-400 border border-white/20 relative z-10 mx-auto mb-4">
-                    <MapPin className="w-8 h-8" strokeWidth={1.5} />
-                  </div>
-                  <p className="font-bold text-white mb-1">Location Services</p>
-                  <p className="text-slate-400 font-medium text-sm">Mapbox Map Placeholder</p>
+                <div className="h-64 relative z-10">
+                  <MapboxMap 
+                    height="100%"
+                    markers={assignments.filter(a => a.issue && a.issue.latitude && a.issue.longitude).map(a => ({
+                      id: a.id,
+                      latitude: a.issue.latitude,
+                      longitude: a.issue.longitude,
+                      color: '#3b82f6',
+                      popupHTML: `<div class="p-2"><p class="font-bold text-sm">${a.issue.title || 'Issue'}</p><p class="text-xs text-gray-500">${a.status}</p></div>`
+                    }))}
+                  />
                 </div>
               </div>
             </div>

@@ -131,11 +131,21 @@ const ManagerAssignments = () => {
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-4 text-sm font-medium text-[#64748B]">
+                  <div className="flex items-center justify-between gap-2 text-sm font-medium text-[#64748B]">
                     <div className="flex items-center">
                       <Clock size={16} className="mr-1.5 opacity-70" />
                       {format(new Date(assignment.assignedDate), 'MMM d, yyyy')}
                     </div>
+                    {assignment.deadline && (
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs text-[#64748B]">Due: {format(new Date(assignment.deadline), 'MMM d')}</span>
+                        {assignment.isOverdue && (
+                          <span className="px-2 py-0.5 text-[10px] font-black uppercase rounded bg-red-100 text-red-700 border border-red-200">
+                            Overdue
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

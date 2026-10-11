@@ -228,13 +228,25 @@ const AdminIssues = () => {
                       </div>
                     </td>
                     <td className="px-6 py-5 whitespace-nowrap">
-                      <div className="flex flex-col items-start gap-2">
-                        <span className={`px-2.5 py-1 inline-flex text-xs font-bold rounded-full border ${getStatusStyle(issue.status)}`}>
-                          {getStatusLabel(issue.status)}
-                        </span>
+                      <div className="flex flex-col items-start gap-1.5">
+                        <div className="flex items-center gap-1.5">
+                          <span className={`px-2.5 py-1 inline-flex text-xs font-bold rounded-full border ${getStatusStyle(issue.status)}`}>
+                            {getStatusLabel(issue.status)}
+                          </span>
+                          {issue.isOverdue && (
+                            <span className="px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-md bg-red-100 text-red-700 border border-red-300">
+                              Overdue
+                            </span>
+                          )}
+                        </div>
                         <span className={`text-xs ${getPriorityStyle(issue.priority)}`}>
-                          {issue.priority}
+                          {issue.priority} Priority
                         </span>
+                        {issue.deadline && !['RESOLVED', 'REJECTED', 'CANCELLED'].includes(issue.status) && (
+                          <span className="text-[10px] text-[#64748B] font-medium">
+                            Target: {format(new Date(issue.deadline), 'MMM d, h:mm a')}
+                          </span>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-5 whitespace-nowrap text-right">

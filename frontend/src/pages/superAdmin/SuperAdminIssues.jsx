@@ -189,9 +189,16 @@ const SuperAdminIssues = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2.5 py-1 inline-flex text-xs leading-5 font-bold rounded-full border ${getStatusBadge(issue.status)}`}>
-                          {issue.status.replace(/_/g, ' ')}
-                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <span className={`px-2.5 py-1 inline-flex text-xs leading-5 font-bold rounded-full border ${getStatusBadge(issue.status)}`}>
+                            {issue.status.replace(/_/g, ' ')}
+                          </span>
+                          {issue.isOverdue && (
+                            <span className="px-2 py-0.5 text-[10px] font-black uppercase rounded bg-red-100 text-red-700 border border-red-200">
+                              Overdue
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-[#64748B]">
                         <div className="flex items-center">

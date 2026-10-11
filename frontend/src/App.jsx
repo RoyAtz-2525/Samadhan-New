@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
+import { SocketProvider } from './context/SocketContext';
 import ProtectedRoute from './routes/ProtectedRoute';
 import RoleRoute from './routes/RoleRoute';
 
@@ -67,6 +68,7 @@ function App() {
   return (
     <Router>
       <AuthProvider>
+        <SocketProvider>
         <Routes>
           {PublicRoutes}
           <Route path="/login" element={<Login />} />
@@ -167,6 +169,7 @@ function App() {
             },
           }} 
         />
+      </SocketProvider>
       </AuthProvider>
     </Router>
   );
