@@ -186,7 +186,7 @@ async function reconcileOverdueIssues() {
         // If unassigned or manager has no user, notify active Admins
         if (!notifiedAny) {
           const admins = await tx.user.findMany({
-            where: { role: { in: ['ADMIN', 'SUPER_ADMIN'] } },
+            where: { role: { name: { in: ['ADMIN', 'SUPER_ADMIN'] } } },
             select: { id: true },
             take: 3,
           });

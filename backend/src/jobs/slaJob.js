@@ -108,7 +108,7 @@ async function handleSlaDeadlineCheck(job) {
     // If no assigned worker/manager yet, notify admins
     if (targetUserIds.length === 0) {
       const admins = await tx.user.findMany({
-        where: { role: { in: ['ADMIN', 'SUPER_ADMIN'] } },
+        where: { role: { name: { in: ['ADMIN', 'SUPER_ADMIN'] } } },
         select: { id: true },
         take: 3,
       });
