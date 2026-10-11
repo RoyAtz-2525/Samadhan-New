@@ -102,6 +102,29 @@ app.get(["/health", "/api/health"], function (req, res) {
   });
 });
 
+
+/* External scheduled cron endpoint (e.g. Vercel Cron, external ping) */
+app.all('/api/cron/reconcile-sla', async function (req, res) {
+  var cronSecret = process.env.CRON_SECRET;
+  var authHeader = req.headers.authorization;
+  if (cronSecret && authHeader !== 'Bearer ' + cronSecret) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid CRON_SECRET' });
+  }
+
+  try {
+    var slaService = require('./services/slaService');
+    var summary = await slaService.reconcileOverdueIssues();
+    res.json({
+      status: 'success',
+      message: 'SLA overdue reconciliation completed',
+      ...summary,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 /* API routes */
 app.use("/api/auth", authRoutes);
 app.use("/api/issues", issueRoutes);

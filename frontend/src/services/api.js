@@ -56,6 +56,7 @@ api.interceptors.response.use(
         if (res.data.accessToken) {
           localStorage.setItem("token", res.data.accessToken);
           originalRequest.headers.Authorization = `Bearer ${res.data.accessToken}`;
+          window.dispatchEvent(new CustomEvent("auth:token-refreshed", { detail: res.data.accessToken }));
           return api(originalRequest);
         }
       } catch (refreshError) {

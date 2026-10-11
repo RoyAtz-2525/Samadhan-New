@@ -1,8 +1,6 @@
-const { PrismaClient } = require("@prisma/client");
+const { prisma } = require("../config/db");
 const { hashPassword, comparePassword } = require("../utils/password");
 const { generateAccessToken, generateRefreshToken } = require("../utils/jwt");
-
-const prisma = new PrismaClient();
 
 const normalizeEmail = (email) => {
   if (typeof email !== "string" || !email.trim()) {

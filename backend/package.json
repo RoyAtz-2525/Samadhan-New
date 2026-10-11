@@ -10,7 +10,8 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "seed": "node prisma/seed.js",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "worker": "node src/workers/worker.js"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
@@ -31,6 +32,7 @@
     "express-rate-limit": "^8.7.0",
     "express-validator": "^7.3.2",
     "helmet": "^8.3.0",
+    "ioredis": "^6.0.0",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.4.0",
     "razorpay": "^2.9.8",

@@ -14,6 +14,9 @@ const upload = multer({
   }
 });
 
+// Public Map API
+router.get('/public-map', issueController.getPublicMapIssues);
+
 // GET categories - open to authenticated users (could be public, but let's require auth)
 router.get('/categories', requireAuth, issueController.getCategories);
 

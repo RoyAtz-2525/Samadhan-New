@@ -362,6 +362,30 @@ const AdminIssueDetails = () => {
             
             <div className="p-6 space-y-6">
               
+              {/* Resolution SLA Target Card */}
+              {issue.deadline && (
+                <div className={`p-4 rounded-xl border ${issue.isOverdue ? 'bg-red-50 border-red-200' : 'bg-slate-50 border-slate-200'}`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-bold text-[#64748B] uppercase tracking-wider">Resolution SLA</span>
+                    {issue.isOverdue ? (
+                      <span className="px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-md bg-red-100 text-red-700 border border-red-300">
+                        Overdue
+                      </span>
+                    ) : (
+                      <span className="px-2 py-0.5 text-[10px] font-black uppercase tracking-wider rounded-md bg-teal-100 text-teal-800 border border-teal-200">
+                        On Track
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-sm font-black text-[#0B1F3A]">
+                    Target: {format(new Date(issue.deadline), 'MMM d, yyyy h:mm a')}
+                  </div>
+                  <div className="text-[11px] text-[#64748B] mt-1">
+                    {issue.slaTargetHours || (issue.priority === 'CRITICAL' ? 24 : issue.priority === 'HIGH' ? 48 : issue.priority === 'LOW' ? 120 : 72)}h resolution window
+                  </div>
+                </div>
+              )}
+
               {/* Responsibility Notice */}
               <div className="bg-blue-50 text-blue-800 p-4 rounded-xl text-sm font-medium border border-blue-100 flex items-start gap-3">
                 <Info className="flex-shrink-0 mt-0.5" size={18} />

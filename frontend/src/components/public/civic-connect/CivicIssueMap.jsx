@@ -11,16 +11,11 @@ const CivicIssueMap = () => {
     // For now, we leave it empty or mock a few for demonstration if needed.
     const fetchPublicIssues = async () => {
       try {
-        // const response = await fetch('/api/issues/public-map');
-        // const data = await response.json();
-        // setPublicIssues(data);
-        
-        // Mock data
-        setPublicIssues([
-          { id: '1', title: 'Pothole on Main Road', category: 'Road', status: 'OPEN', latitude: 28.6139, longitude: 77.2090 },
-          { id: '2', title: 'Streetlight not working', category: 'Street Light', status: 'IN_PROGRESS', latitude: 28.6239, longitude: 77.2190 },
-          { id: '3', title: 'Water leakage', category: 'Water', status: 'RESOLVED', latitude: 28.6039, longitude: 77.1990 },
-        ]);
+        const response = await fetch('http://localhost:5000/api/issues/public-map');
+        const data = await response.json();
+        if (Array.isArray(data)) {
+          setPublicIssues(data);
+        }
       } catch (err) {
         console.error("Failed to fetch public map data", err);
       }

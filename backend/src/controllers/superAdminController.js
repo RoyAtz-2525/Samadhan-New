@@ -1,8 +1,14 @@
+const cacheService = require('../services/cacheService');
 const superAdminService = require('../services/superAdminService');
 
 const getOverview = async (req, res, next) => {
   try {
+    const cached = await cacheService.get(cacheService.CACHE_KEYS.SUPERADMIN_OVERVIEW);
+    if (cached) {
+      return res.json(cached);
+    }
     const overview = await superAdminService.getPlatformOverview();
+    await cacheService.set(cacheService.CACHE_KEYS.SUPERADMIN_OVERVIEW, overview, 120);
     res.json(overview);
   } catch (error) {
     next(error);
@@ -100,7 +106,13 @@ const getAuditLogs = async (req, res, next) => {
 const getAnalytics = async (req, res, next) => {
   try {
     const { range } = req.query; // '7d', '30d', '90d', '1y'
+    const cacheKey = cacheService.CACHE_KEYS.SUPERADMIN_ANALYTICS(range);
+    const cached = await cacheService.get(cacheKey);
+    if (cached) {
+      return res.json(cached);
+    }
     const analytics = await superAdminService.getAnalytics(range);
+    await cacheService.set(cacheKey, analytics, 300);
     res.json(analytics);
   } catch (error) {
     next(error);

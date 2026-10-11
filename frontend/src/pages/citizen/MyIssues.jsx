@@ -178,10 +178,22 @@ const MyIssues = () => {
                 </div>
 
                 <div className="space-y-2.5 text-sm text-[#64748B] mb-6">
-                  <div className="flex items-center">
-                    <Clock size={16} className="mr-2.5 text-slate-400 flex-shrink-0" />
-                    <span>{format(new Date(issue.createdAt), 'MMM d, yyyy')}</span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Clock size={16} className="mr-2.5 text-slate-400 flex-shrink-0" />
+                      <span>{format(new Date(issue.createdAt), 'MMM d, yyyy')}</span>
+                    </div>
+                    {issue.isDelayed && (
+                      <span className="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-amber-50 text-amber-700 border border-amber-200">
+                        Delayed
+                      </span>
+                    )}
                   </div>
+                  {issue.expectedResolutionDate && !['RESOLVED', 'REJECTED', 'CANCELLED'].includes(issue.status) && (
+                    <div className="text-xs text-slate-500 font-medium">
+                      Expected by: {format(new Date(issue.expectedResolutionDate), 'MMM d, yyyy')}
+                    </div>
+                  )}
                   
                   {(issue.address || (issue.latitude && issue.longitude)) && (
                     <div className="flex items-start">

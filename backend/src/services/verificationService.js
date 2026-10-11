@@ -1,5 +1,5 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const { cancelSlaDeadlineCheck } = require('../queues/slaQueue');
+const { prisma } = require('../config/db');
 const createError = require('http-errors');
 const cloudinary = require('../config/cloudinary');
 const streamifier = require('streamifier');
@@ -20,6 +20,7 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
 };
 
 const { uploadToCloudinary, deleteFromCloudinary } = require('../utils/cloudinaryHelper');
+const { enqueueMediaCleanup } = require('../queues');
 const crypto = require('crypto');
 
 const getBeforeVerification = async (userId, assignmentId) => {
@@ -165,12 +166,10 @@ const submitBeforeVerification = async (userId, assignmentId, data, files) => {
       distanceKm
     };
   } catch (error) {
-    // Cleanup Cloudinary assets if anything failed
-    for (const record of mediaRecords) {
-      if (record.publicId) {
-        await deleteFromCloudinary(record.publicId, record.type === 'VIDEO' ? 'video' : 'image');
-      }
-    }
+    // Cleanup Cloudinary assets if anything failed via background queue (or fallback)
+    enqueueMediaCleanup(mediaRecords).catch((err) => {
+      console.warn('[VerificationService] Failed to enqueue media cleanup:', err.message);
+    });
     throw createError(500, 'Failed to submit verification: ' + error.message);
   }
 };
@@ -600,12 +599,10 @@ const submitAfterVerification = async (userId, assignmentId, data, files) => {
 
     return verification;
   } catch (error) {
-    // Cleanup Cloudinary assets if anything failed
-    for (const record of mediaRecords) {
-      if (record.publicId) {
-        await deleteFromCloudinary(record.publicId, record.type === 'VIDEO' ? 'video' : 'image');
-      }
-    }
+    // Cleanup Cloudinary assets if anything failed via background queue (or fallback)
+    enqueueMediaCleanup(mediaRecords).catch((err) => {
+      console.warn('[VerificationService] Failed to enqueue media cleanup:', err.message);
+    });
     throw createError(500, 'Failed to submit verification: ' + error.message);
   }
 };

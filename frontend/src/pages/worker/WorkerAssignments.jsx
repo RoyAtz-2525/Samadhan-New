@@ -160,10 +160,23 @@ const WorkerAssignments = () => {
                     <MapPin size={18} className="text-slate-400 mr-3 flex-shrink-0" strokeWidth={2} />
                     <span className="text-slate-700 font-medium line-clamp-2">{assignment.issue?.address || 'No address provided'}</span>
                   </div>
-                  <div className="flex items-center text-sm">
-                    <Calendar size={18} className="text-slate-400 mr-3 flex-shrink-0" strokeWidth={2} />
-                    <span className="text-slate-700 font-medium">Assigned {format(new Date(assignment.assignedDate), 'MMM d, yyyy')}</span>
+                  <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center">
+                      <Calendar size={18} className="text-slate-400 mr-3 flex-shrink-0" strokeWidth={2} />
+                      <span className="text-slate-700 font-medium">Assigned {format(new Date(assignment.assignedDate), 'MMM d, yyyy')}</span>
+                    </div>
+                    {assignment.isOverdue && (
+                      <span className="px-2 py-0.5 text-[10px] font-black uppercase rounded bg-red-100 text-red-600 border border-red-200">
+                        Overdue
+                      </span>
+                    )}
                   </div>
+                  {assignment.deadline && (
+                    <div className="flex items-center text-xs text-slate-500 font-medium">
+                      <Clock size={16} className="text-slate-400 mr-3 flex-shrink-0" />
+                      <span>Target: {format(new Date(assignment.deadline), 'MMM d, yyyy h:mm a')}</span>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-50">
                     <div className="flex items-center text-sm font-black text-teal-600 bg-teal-50 px-3 py-1.5 rounded-lg border border-teal-100">
                       <IndianRupee size={16} className="mr-1" strokeWidth={2.5} />

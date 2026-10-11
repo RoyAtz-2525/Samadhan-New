@@ -1,9 +1,16 @@
+const cacheService = require('../services/cacheService');
 const { validationResult } = require('express-validator');
 const adminService = require('../services/adminService');
+const slaService = require('../services/slaService');
 
 const getDashboardMetrics = async (req, res, next) => {
   try {
+    const cached = await cacheService.get(cacheService.CACHE_KEYS.ADMIN_METRICS);
+    if (cached) {
+      return res.json(cached);
+    }
     const metrics = await adminService.getAdminDashboardMetrics();
+    await cacheService.set(cacheService.CACHE_KEYS.ADMIN_METRICS, metrics, 120);
     res.json(metrics);
   } catch (error) {
     next(error);
@@ -69,10 +76,25 @@ const updatePriority = async (req, res, next) => {
   }
 };
 
+const reconcileSla = async (req, res, next) => {
+  try {
+    const summary = await slaService.reconcileOverdueIssues();
+    res.json({
+      status: 'success',
+      message: 'SLA overdue reconciliation completed successfully',
+      ...summary,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getDashboardMetrics,
   getIssues,
   getIssueDetails,
   reviewIssue,
-  updatePriority
+  updatePriority,
+  reconcileSla,
 };

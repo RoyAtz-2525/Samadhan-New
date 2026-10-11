@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import MapboxMap from '../../components/maps/MapboxMap';
 import { AlertCircle, Briefcase, Users, CheckSquare, ShieldCheck, ChevronRight, MapPin, Clock, CircleDot, Activity } from 'lucide-react';
 import managerService from '../../services/managerService';
 import { useAuth } from '../../context/AuthContext';
@@ -240,15 +241,17 @@ const ManagerDashboard = () => {
                 Issue Location Map
               </h2>
             </div>
-            <div className="h-72 bg-slate-900/50 flex items-center justify-center relative overflow-hidden backdrop-blur-sm z-10">
-              <div className="text-center z-10 relative">
-                <div className="absolute inset-0 bg-teal-400 blur-xl opacity-20 rounded-full animate-pulse"></div>
-                <div className="w-24 h-24 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-teal-400 border border-white/20 relative z-10 mx-auto mb-6">
-                  <MapPin className="w-10 h-10" strokeWidth={1.5} />
-                </div>
-                <h3 className="font-bold text-white mb-2 text-xl">Interactive Map</h3>
-                <p className="text-slate-400 font-medium">Geospatial visualization coming soon.</p>
-              </div>
+            <div className="h-96 relative z-10">
+              <MapboxMap 
+                height="100%"
+                markers={assignments.filter(a => a.issue && a.issue.latitude && a.issue.longitude).map(a => ({
+                  id: a.id,
+                  latitude: a.issue.latitude,
+                  longitude: a.issue.longitude,
+                  color: '#f59e0b',
+                  popupHTML: `<div class="p-2"><p class="font-bold text-sm">${a.issue.title || 'Issue'}</p><p class="text-xs text-gray-500">Worker: ${a.worker?.user?.name || 'Unknown'}</p></div>`
+                }))}
+              />
             </div>
           </div>
 

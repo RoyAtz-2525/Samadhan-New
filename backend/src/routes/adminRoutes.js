@@ -12,5 +12,6 @@ router.get('/issues', adminController.getIssues);
 router.get('/issues/:id', adminController.getIssueDetails);
 router.patch('/issues/:id/review', reviewIssueValidator, adminController.reviewIssue);
 router.patch('/issues/:id/priority', updatePriorityValidator, adminController.updatePriority);
+router.post('/sla/reconcile', adminController.reconcileSla);
 
 module.exports = router;
