@@ -309,11 +309,23 @@ const getAssignments = async (managerUserId) => {
   const assignments = await prisma.workAssignment.findMany({
     where: { managerId: manager.id },
     include: {
-      issue: { select: { title: true, status: true, id: true } },
+      issue: {
+        select: {
+          id: true,
+          title: true,
+          status: true,
+          priority: true,
+          category: true,
+          createdAt: true,
+          address: true
+        }
+      },
       worker: { include: { user: { select: { email: true } } } }
     },
     orderBy: { assignedDate: 'desc' }
   });
+
+  return assignments.map(attachSlaToAssignment);
 };
 
 const getAssignmentDetails = async (managerUserId, assignmentId) => {

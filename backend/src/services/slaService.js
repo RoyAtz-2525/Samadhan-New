@@ -89,11 +89,16 @@ function attachSlaToIssues(issues) {
 function attachSlaToAssignment(assignment) {
   if (!assignment) return null;
 
-  const deadline = assignment.expectedCompletionDate
+  const rawDeadline = assignment.expectedCompletionDate
     ? new Date(assignment.expectedCompletionDate)
     : (assignment.issue ? deriveIssueDeadline(assignment.issue) : null);
 
-  const overdue = isIssueOverdue(assignment.status === 'COMPLETED' ? 'RESOLVED' : assignment.status, deadline);
+  const isValidDeadline = rawDeadline instanceof Date && !isNaN(rawDeadline.getTime());
+  const deadline = isValidDeadline ? rawDeadline : null;
+
+  const overdue = deadline
+    ? isIssueOverdue(assignment.status === 'COMPLETED' ? 'RESOLVED' : assignment.status, deadline)
+    : false;
   const now = Date.now();
   const timeRemainingMs = deadline ? deadline.getTime() - now : null;
 
