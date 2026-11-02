@@ -1,5 +1,9 @@
-const Razorpay = require("razorpay");
+﻿const Razorpay = require("razorpay");
 const crypto = require("crypto");
+
+const isCheckoutTestMode = () => {
+  return process.env.RAZORPAY_CHECKOUT_TEST_MODE === "true" || process.env.PAYMENT_TEST_MODE === "true";
+};
 
 const getRazorpayInstance = () => {
   const { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } = process.env;
@@ -23,18 +27,18 @@ const signaturesMatch = (expectedSignature, signature) => {
   );
 };
 
-const createOrder = async (amount, currency = "INR", receipt = "") => {
-  const isTestMode = process.env.PAYMENT_TEST_MODE === "true";
+const createOrder = async (amount, currency = "INR", receipt = "", notes = {}) => {
+  const isTestMode = isCheckoutTestMode();
   const isProd = process.env.NODE_ENV === "production";
 
   if (isProd && isTestMode) {
-    throw new Error("PAYMENT_TEST_MODE cannot be enabled in production.");
+    throw new Error("Checkout test mode cannot be enabled in production.");
   }
 
   const key_id = process.env.RAZORPAY_KEY_ID;
 
   if (isTestMode && !key_id) {
-    // Return mock order for testing without actual Razorpay keys
+    // Return mock order for testing without live Razorpay keys
     return {
       id: `order_dummy_${Date.now()}`,
       amount: Math.round(amount * 100),
@@ -42,6 +46,7 @@ const createOrder = async (amount, currency = "INR", receipt = "") => {
       receipt,
       status: "created",
       attempts: 0,
+      notes,
     };
   }
 
@@ -54,22 +59,40 @@ const createOrder = async (amount, currency = "INR", receipt = "") => {
     amount: Math.round(amount * 100), // amount in paise
     currency,
     receipt,
+    notes,
   };
   return await instance.orders.create(options);
 };
 
 const verifySignature = (orderId, paymentId, signature) => {
-  const isTestMode = process.env.PAYMENT_TEST_MODE === "true";
+  const isTestMode = isCheckoutTestMode();
   const isProd = process.env.NODE_ENV === "production";
 
   if (isProd && isTestMode) {
-    throw new Error("PAYMENT_TEST_MODE cannot be enabled in production.");
+    throw new Error("Checkout test mode cannot be enabled in production.");
   }
 
   const secret = process.env.RAZORPAY_KEY_SECRET;
+
+  // In test mode without secret, allow simulated verification
+  if (isTestMode && !secret) {
+    if (!signature || signature === "invalid_signature" || signature === "tampered_signature") {
+      return false;
+    }
+    // Accept valid simulation signatures
+    return (
+      typeof signature === "string" &&
+      (signature.startsWith("test_simulated_") ||
+        signature.startsWith("mock_") ||
+        signature === "simulated_valid_signature" ||
+        (orderId && orderId.startsWith("order_dummy_")))
+    );
+  }
+
   if (!secret) {
     throw new Error("Razorpay key secret is not configured.");
   }
+
   const generatedSignature = crypto
     .createHmac("sha256", secret)
     .update(orderId + "|" + paymentId)
@@ -78,13 +101,31 @@ const verifySignature = (orderId, paymentId, signature) => {
 };
 
 const verifyWebhookSignature = (body, signature) => {
+  const isTestMode = isCheckoutTestMode();
+  const isProd = process.env.NODE_ENV === "production";
+
+  if (isProd && isTestMode) {
+    throw new Error("Checkout test mode cannot be enabled in production.");
+  }
+
   const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+
+  if (isTestMode && !secret) {
+    if (!signature || signature === "invalid_signature") return false;
+    return (
+      typeof signature === "string" &&
+      (signature.startsWith("test_simulated_") || signature === "mock_webhook_signature")
+    );
+  }
+
   if (!secret) {
     throw new Error("Razorpay webhook secret is not configured.");
   }
+
+  const rawBodyString = Buffer.isBuffer(body) ? body.toString("utf8") : typeof body === "string" ? body : JSON.stringify(body);
   const expectedSignature = crypto
     .createHmac("sha256", secret)
-    .update(body)
+    .update(rawBodyString)
     .digest("hex");
   return signaturesMatch(expectedSignature, signature);
 };

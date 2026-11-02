@@ -12,6 +12,7 @@ var workerRoutes = require("./routes/workerRoutes");
 var verificationRoutes = require("./routes/verificationRoutes");
 var superAdminRoutes = require("./routes/superAdminRoutes");
 var paymentRoutes = require("./routes/paymentRoutes");
+var rewardRoutes = require("./routes/rewardRoutes");
 
 var errorHandler = require("./middleware/errorMiddleware").errorHandler;
 
@@ -134,6 +135,7 @@ app.use("/api/worker", workerRoutes);
 app.use("/api/verification", verificationRoutes);
 app.use("/api/super-admin", superAdminRoutes);
 app.use("/api", paymentRoutes);
+app.use("/api", rewardRoutes);
 
 /* Error handler */
 app.use(errorHandler);

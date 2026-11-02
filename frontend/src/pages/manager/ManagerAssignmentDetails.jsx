@@ -56,71 +56,35 @@ const ManagerAssignmentDetails = () => {
     fetchDetails();
   }, [id]);
 
-  const handlePayment = async () => {
-    const isLoaded = await loadRazorpay();
-    if (!isLoaded) {
-      toast.error("Razorpay SDK failed to load. Are you online?");
+  const handleInitiatePayout = async () => {
+    if (!worker?.payoutAccountVerified) {
+      toast.error("Worker has not registered or verified a bank account or UPI ID for payouts yet.");
       return;
     }
 
     setProcessingPayment(true);
     try {
-      const orderResponse = await paymentService.createPaymentOrder(id);
-      if (!orderResponse.success)
-        throw new Error("Failed to create payment order");
-
-      const { razorpayKeyId, razorpayOrderId, amount, currency, paymentId } =
-        orderResponse.data;
-
-      const options = {
-        key: razorpayKeyId,
-        amount: amount * 100,
-        currency,
-        name: "SAMADHAN",
-        description: "Worker Payment",
-        order_id: razorpayOrderId,
-        handler: async function (response) {
-          try {
-            toast.loading("Verifying payment...", { id: "payment-verify" });
-            const verifyResult = await paymentService.verifyPayment(
-              paymentId,
-              response,
-            );
-            if (verifyResult.success) {
-              toast.success("Payment successful!", { id: "payment-verify" });
-              const refresh = await paymentService.getPaymentByAssignment(id);
-              if (refresh.success) setPayment(refresh.data);
-            }
-          } catch (verifyErr) {
-            toast.error(
-              verifyErr.response?.data?.message ||
-                "Payment verification failed",
-              { id: "payment-verify" },
-            );
-          }
-        },
-        prefill: {
-          name: "Manager",
-        },
-        theme: {
-          color: "#0B1F3A",
-        },
-      };
-
-      if (!razorpayKeyId) {
-        throw new Error("Razorpay is not configured.");
+      toast.loading("Initiating worker payout via RazorpayX...", { id: "payout-init" });
+      const payoutRes = await paymentService.initiateWorkerPayout(id);
+      if (payoutRes.success) {
+        toast.success(
+          payoutRes.reconciled
+            ? "Payout confirmed and reconciled with provider!"
+            : (payoutRes.message || "Worker payout initiated successfully!"),
+          { id: "payout-init" }
+        );
+        const refresh = await paymentService.getPaymentByAssignment(id);
+        if (refresh.success && refresh.data) {
+          setPayment(refresh.data);
+        }
+      } else {
+        toast.error("Failed to initiate worker payout", { id: "payout-init" });
       }
-
-      const rzp = new window.Razorpay(options);
-      rzp.on("payment.failed", function (response) {
-        toast.error("Payment failed: " + response.error.description);
-      });
-      rzp.open();
     } catch (err) {
+      console.error("Payout initiation error:", err);
       toast.error(
-        err.response?.data?.message ||
-          err.message ||
-          "Failed to initiate payment",
+        err.response?.data?.message || err.message || "Failed to initiate worker payout",
+        { id: "payout-init" }
       );
     } finally {
       setProcessingPayment(false);
@@ -385,34 +349,72 @@ const ManagerAssignmentDetails = () => {
           <div className="bg-white rounded-3xl shadow-sm border-2 border-[#0B1F3A] overflow-hidden sticky top-8">
             <div className="bg-[#0B1F3A] px-6 py-5">
               <h2 className="text-lg font-black text-white flex items-center gap-2">
-                <CreditCard size={20} className="text-[#0F9D8A]" /> Payment
-                Details
+                <CreditCard size={20} className="text-[#0F9D8A]" /> Worker Payout (RazorpayX)
               </h2>
             </div>
 
             <div className="p-6">
+              {/* Worker Beneficiary Info */}
+              <div className="mb-6 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-2">
+                  Beneficiary Account Details
+                </span>
+                {worker?.payoutAccountVerified ? (
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-700">
+                        {worker.payoutMethod === "UPI" ? "UPI VPA:" : "Bank Account:"}
+                      </span>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <CheckCircle size={10} className="mr-1" /> VERIFIED
+                      </span>
+                    </div>
+                    <p className="text-sm font-black text-[#0B1F3A]">
+                      {worker.payoutMethod === "UPI"
+                        ? worker.upiVpa
+                        : worker.bankAccountNumberMasked || "•••• •••• ••••"}
+                    </p>
+                    {worker.payoutMethod !== "UPI" && worker.bankIfsc && (
+                      <p className="text-xs font-semibold text-slate-500">
+                        IFSC: {worker.bankIfsc} {worker.bankAccountName ? `• ${worker.bankAccountName}` : ""}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-amber-800 bg-amber-50 p-2.5 rounded-xl border border-amber-200 text-xs">
+                    <p className="font-bold flex items-center gap-1.5">
+                      <AlertCircle size={14} className="shrink-0 text-amber-600" />
+                      No verified payout account linked
+                    </p>
+                    <p className="mt-1 text-[11px] text-amber-700 leading-tight">
+                      The worker has not yet registered their Bank or UPI details in their dashboard.
+                    </p>
+                  </div>
+                )}
+              </div>
+
               {payment ? (
                 <div>
                   <div className="flex justify-between items-center mb-6">
                     <span className="text-xs font-bold text-[#64748B] uppercase tracking-wider">
-                      Status
+                      Payout Status
                     </span>
                     <span
                       className={`px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider border ${
                         payment.status === "COMPLETED"
                           ? "bg-green-50 text-green-700 border-green-200"
-                          : payment.status === "FAILED"
+                          : payment.status === "FAILED" || payment.payoutStatus === "failed" || payment.payoutStatus === "reversed"
                             ? "bg-red-50 text-red-700 border-red-200"
                             : "bg-yellow-50 text-yellow-700 border-yellow-200"
                       }`}
                     >
-                      {payment.status}
+                      {payment.payoutStatus || payment.status}
                     </span>
                   </div>
 
                   <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 mb-6 flex flex-col items-center justify-center">
                     <span className="text-xs font-bold text-[#64748B] uppercase tracking-wider mb-2">
-                      Amount Paid
+                      Amount
                     </span>
                     <div className="flex items-center text-[#0B1F3A]">
                       <IndianRupee size={24} className="mr-1" />
@@ -422,6 +424,20 @@ const ManagerAssignmentDetails = () => {
                     </div>
                   </div>
 
+                  {payment.payoutUtr && (
+                    <div className="mb-4 bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs">
+                      <span className="text-slate-500 font-semibold block mb-0.5">Bank UTR Reference</span>
+                      <span className="font-mono font-bold text-slate-800">{payment.payoutUtr}</span>
+                    </div>
+                  )}
+
+                  {payment.payoutFailureReason && (
+                    <div className="mb-4 bg-red-50 p-3 rounded-xl border border-red-200 text-xs text-red-700">
+                      <span className="font-bold block mb-0.5">Failure Reason:</span>
+                      <span>{payment.payoutFailureReason}</span>
+                    </div>
+                  )}
+
                   {payment.status === "COMPLETED" && payment.paidAt && (
                     <div className="flex items-center justify-center text-sm font-bold text-green-600 bg-green-50 p-3 rounded-xl border border-green-200">
                       <CheckCircle size={18} className="mr-2" />
@@ -429,13 +445,19 @@ const ManagerAssignmentDetails = () => {
                     </div>
                   )}
 
-                  {payment.status !== "COMPLETED" && isEligibleForPayment && (
+                  {payment.status === "PROCESSING" && (
+                    <div className="text-center p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold">
+                      Payout is processing with RazorpayX. Status will update automatically.
+                    </div>
+                  )}
+
+                  {payment.status !== "COMPLETED" && payment.status !== "PROCESSING" && isEligibleForPayment && (
                     <button
-                      onClick={handlePayment}
-                      disabled={processingPayment}
-                      className="w-full flex justify-center py-3.5 px-4 rounded-xl text-sm font-bold text-white bg-[#0F9D8A] hover:bg-[#0B7A6A] transition-colors shadow-sm disabled:opacity-50"
+                      onClick={handleInitiatePayout}
+                      disabled={processingPayment || !worker?.payoutAccountVerified}
+                      className="w-full flex justify-center py-3.5 px-4 rounded-xl text-sm font-bold text-white bg-[#0F9D8A] hover:bg-[#0B7A6A] transition-colors shadow-sm disabled:opacity-50 mt-4"
                     >
-                      {processingPayment ? "Processing..." : "Retry Payment"}
+                      {processingPayment ? "Initiating Payout..." : "Retry Worker Payout"}
                     </button>
                   )}
                 </div>
@@ -446,13 +468,13 @@ const ManagerAssignmentDetails = () => {
                       <CreditCard className="h-8 w-8 text-[#64748B] opacity-50" />
                     </div>
                     <p className="text-sm font-bold text-[#0F172A]">
-                      No payment recorded
+                      No payout initiated yet
                     </p>
                   </div>
 
                   <div className="bg-blue-50 p-5 rounded-2xl border border-blue-100 mb-6 flex flex-col items-center justify-center text-blue-900">
                     <span className="text-xs font-bold uppercase tracking-wider mb-1 opacity-80">
-                      Amount Due
+                      Amount Payable
                     </span>
                     <div className="flex items-center">
                       <IndianRupee size={20} className="mr-1" />
@@ -463,20 +485,25 @@ const ManagerAssignmentDetails = () => {
                   </div>
 
                   {isEligibleForPayment ? (
-                    <button
-                      onClick={handlePayment}
-                      disabled={processingPayment}
-                      className="w-full flex justify-center py-3.5 px-4 rounded-xl text-sm font-bold text-white bg-[#0F9D8A] hover:bg-[#0B7A6A] transition-colors shadow-sm disabled:opacity-50"
-                    >
-                      {processingPayment ? "Processing..." : "Pay Worker Now"}
-                    </button>
+                    <div>
+                      <button
+                        onClick={handleInitiatePayout}
+                        disabled={processingPayment || !worker?.payoutAccountVerified}
+                        className="w-full flex justify-center py-3.5 px-4 rounded-xl text-sm font-bold text-white bg-[#0F9D8A] hover:bg-[#0B7A6A] transition-colors shadow-sm disabled:opacity-50"
+                      >
+                        {processingPayment ? "Processing..." : "Initiate Worker Payout"}
+                      </button>
+                      {!worker?.payoutAccountVerified && (
+                        <p className="text-center text-[11px] font-semibold text-amber-700 mt-2">
+                          Disabled: Worker must configure Bank/UPI first
+                        </p>
+                      )}
+                    </div>
                   ) : (
                     <div className="bg-amber-50 text-amber-800 p-4 rounded-xl text-xs font-medium border border-amber-200">
                       <p className="flex gap-2">
                         <AlertCircle size={16} className="shrink-0 mt-0.5" />
-                        Payment becomes available once the work is completed,
-                        after-work verification is approved, and the issue is
-                        resolved.
+                        Payout becomes available once work is completed, after-work verification is approved, and the issue is resolved.
                       </p>
                     </div>
                   )}

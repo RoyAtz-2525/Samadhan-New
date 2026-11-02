@@ -13,15 +13,19 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { getMyIssues } from "../../services/issueService";
+import { getRewardSummary } from "../../services/rewardService";
+import { Award } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 const CitizenDashboard = () => {
   const { user } = useAuth();
   const [issues, setIssues] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [rewardData, setRewardData] = useState(null);
 
   useEffect(() => {
     fetchIssues();
+    getRewardSummary().then(setRewardData).catch(() => {});
   }, []);
 
   const fetchIssues = async () => {

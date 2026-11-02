@@ -1,3 +1,4 @@
+const rewardService = require('./rewardService');
 const { cancelSlaDeadlineCheck } = require('../queues/slaQueue');
 const { prisma } = require('../config/db');
 const createError = require('http-errors');

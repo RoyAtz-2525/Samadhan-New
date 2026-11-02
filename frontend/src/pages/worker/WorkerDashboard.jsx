@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Briefcase, CheckCircle, Clock, FileCheck, IndianRupee, Star, MapPin, ChevronRight, AlertCircle } from 'lucide-react';
+import { Briefcase, CheckCircle, Clock, FileCheck, IndianRupee, Star, MapPin, ChevronRight, AlertCircle, ShieldCheck, CreditCard, Building, QrCode } from 'lucide-react';
 import MapboxMap from '../../components/maps/MapboxMap';
 import workerService from '../../services/workerService';
+import * as paymentService from '../../services/paymentService';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { format } from 'date-fns';
@@ -12,6 +13,18 @@ const WorkerDashboard = () => {
   const [metrics, setMetrics] = useState(null);
   const [performance, setPerformance] = useState(null);
   const [appraisals, setAppraisals] = useState([]);
+  const [payments, setPayments] = useState([]);
+  const [payoutAccount, setPayoutAccount] = useState(null);
+  const [savingPayout, setSavingPayout] = useState(false);
+  const [payoutMsg, setPayoutMsg] = useState(null);
+  const [payoutForm, setPayoutForm] = useState({
+    payoutMethod: 'BANK_ACCOUNT',
+    bankAccountName: '',
+    bankAccountNumber: '',
+    bankIfsc: '',
+    upiVpa: '',
+    consentGiven: false,
+  });
   const [loading, setLoading] = useState(true);
   const [updatingLocation, setUpdatingLocation] = useState(false);
   const [locationError, setLocationError] = useState(null);
@@ -60,6 +73,25 @@ const WorkerDashboard = () => {
       setMetrics(dashRes.data || { pending: 0, active: 0, accepted: 0, total: 0, rejected: 0 });
       setPerformance(perfRes.data || null);
       setAppraisals(appRes.data || []);
+      try {
+        const payRes = await paymentService.getWorkerPayments();
+        setPayments(payRes.data || []);
+      } catch {}
+      try {
+        const accRes = await paymentService.getWorkerPayoutAccount();
+        if (accRes.success && accRes.data) {
+          setPayoutAccount(accRes.data);
+          if (accRes.data.payoutMethod) {
+            setPayoutForm(prev => ({
+              ...prev,
+              payoutMethod: accRes.data.payoutMethod,
+              bankAccountName: accRes.data.bankAccountName || '',
+              bankIfsc: accRes.data.bankIfsc || '',
+              upiVpa: accRes.data.upiVpa || '',
+            }));
+          }
+        }
+      } catch {}
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch dashboard metrics');
     } finally {
@@ -78,6 +110,26 @@ const WorkerDashboard = () => {
       fetchDashboard();
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to acknowledge appraisal');
+    }
+  };
+
+  const handleSavePayoutAccount = async (e) => {
+    e.preventDefault();
+    setSavingPayout(true);
+    setPayoutMsg(null);
+    try {
+      const res = await paymentService.saveWorkerPayoutAccount(payoutForm);
+      if (res.success) {
+        setPayoutMsg({ type: 'success', text: res.message || 'Payout account saved and verified!' });
+        setPayoutAccount(res.data);
+      }
+    } catch (err) {
+      setPayoutMsg({
+        type: 'error',
+        text: err.response?.data?.message || err.message || 'Failed to save payout account',
+      });
+    } finally {
+      setSavingPayout(false);
     }
   };
 

@@ -1,3 +1,4 @@
+const rewardService = require('./rewardService');
 const { calculateDeadline } = require('../config/slaConfig');
 const { scheduleSlaDeadlineCheck, cancelSlaDeadlineCheck } = require('../queues/slaQueue');
 const { attachSlaToIssue, attachSlaToIssues } = require('./slaService');
@@ -139,6 +140,7 @@ const reviewIssue = async (adminId, issueId, action, reason) => {
     if (newStatus === 'APPROVED') {
       const deadline = calculateDeadline(new Date(), issue.priority, issue.category?.name);
       scheduleSlaDeadlineCheck(issueId, deadline).catch(() => {});
+      await rewardService.awardReportApprovedReward(tx, issue);
     } else if (newStatus === 'REJECTED') {
       cancelSlaDeadlineCheck(issueId).catch(() => {});
     }

@@ -5,7 +5,10 @@ var app = require("./app");
 var { connectDB } = require("./config/db");
 var { connectRedis, closeRedis } = require("./config/redis");
 var { initSocket, getIO } = require("./sockets");
-var { startBackgroundWorkers, stopBackgroundWorkers } = require("./workers/worker");
+var {
+  startBackgroundWorkers,
+  stopBackgroundWorkers,
+} = require("./workers/worker");
 
 var PORT = process.env.PORT || 5000;
 
@@ -26,9 +29,15 @@ server.listen(PORT, async function () {
   // Initialize BullMQ background workers and SLA reconciliation within the same process
   try {
     const workerStatus = await startBackgroundWorkers();
-    console.log("[Server] Background worker subsystem initialized:", workerStatus);
+    console.log(
+      "[Server] Background worker subsystem initialized:",
+      workerStatus,
+    );
   } catch (err) {
-    console.error("[Server] Background worker initialization error:", err.message);
+    console.error(
+      "[Server] Background worker initialization error:",
+      err.message,
+    );
   }
 });
 

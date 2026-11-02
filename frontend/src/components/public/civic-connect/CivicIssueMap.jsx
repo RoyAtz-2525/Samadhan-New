@@ -1,18 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import MapboxMap from '../../maps/MapboxMap';
-import { MapPin, Filter, Layers } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import MapboxMap from "../../maps/MapboxMap";
+import { MapPin, Filter, Layers } from "lucide-react";
+import api from "../../../services/api";
 
 const CivicIssueMap = () => {
   const [publicIssues, setPublicIssues] = useState([]);
-  
+
   useEffect(() => {
     // In a real implementation, this would fetch from /api/issues/public-map
     // Fetching minimal safe data: id, title, latitude, longitude, status, category
     // For now, we leave it empty or mock a few for demonstration if needed.
     const fetchPublicIssues = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/issues/public-map');
-        const data = await response.json();
+        const response = await api.get("/issues/public-map");
+        const data = response.data;
         if (Array.isArray(data)) {
           setPublicIssues(data);
         }
@@ -20,12 +21,20 @@ const CivicIssueMap = () => {
         console.error("Failed to fetch public map data", err);
       }
     };
-    
+
     fetchPublicIssues();
   }, []);
 
-  const [activeFilter, setActiveFilter] = useState('All');
-  const filters = ['All', 'Road', 'Garbage', 'Water', 'Street Light', 'Drainage', 'Safety'];
+  const [activeFilter, setActiveFilter] = useState("All");
+  const filters = [
+    "All",
+    "Road",
+    "Garbage",
+    "Water",
+    "Street Light",
+    "Drainage",
+    "Safety",
+  ];
 
   return (
     <section className="py-12 md:py-20 bg-slate-50">
@@ -38,9 +47,11 @@ const CivicIssueMap = () => {
               </div>
               Public Issue Map
             </h2>
-            <p className="text-slate-600 mt-3 text-lg max-w-2xl">Explore verified civic activity in your area.</p>
+            <p className="text-slate-600 mt-3 text-lg max-w-2xl">
+              Explore verified civic activity in your area.
+            </p>
           </div>
-          
+
           {/* Legend */}
           <div className="flex items-center gap-6 bg-white px-5 py-3 rounded-xl shadow-sm border border-slate-200 text-sm font-semibold">
             <div className="flex items-center gap-2">
@@ -62,18 +73,21 @@ const CivicIssueMap = () => {
         <div className="mb-8 flex items-center gap-2 overflow-x-auto pb-4 scrollbar-hide">
           <div className="flex items-center gap-2 text-slate-500 mr-4 shrink-0">
             <Filter className="h-5 w-5" />
-            <span className="text-sm font-bold uppercase tracking-wider">Filters</span>
+            <span className="text-sm font-bold uppercase tracking-wider">
+              Filters
+            </span>
           </div>
           <div className="flex gap-2 bg-slate-200/50 p-1 rounded-xl">
-            {filters.map(filter => (
+            {filters.map((filter) => (
               <button
                 key={filter}
                 onClick={() => setActiveFilter(filter)}
-                className={"shrink-0 px-5 py-2 rounded-lg text-sm font-bold transition-all " + (
-                  activeFilter === filter
+                className={
+                  "shrink-0 px-5 py-2 rounded-lg text-sm font-bold transition-all " +
+                  (activeFilter === filter
                     ? "bg-white text-slate-900 shadow-sm border border-slate-200/50"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-200"
-                )}
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-200")
+                }
               >
                 {filter}
               </button>
@@ -83,26 +97,35 @@ const CivicIssueMap = () => {
 
         {/* Map Container */}
         <div className="w-full h-[500px] lg:h-[600px] bg-slate-200 rounded-3xl border border-slate-300 flex flex-col items-center justify-center relative overflow-hidden shadow-inner">
-          <MapboxMap 
+          <MapboxMap
             height="100%"
             zoom={12}
             center={[78.9629, 20.5937]}
-            markers={publicIssues.filter(i => (activeFilter === 'All' || i.category === activeFilter)).map(i => ({
-              id: i.id,
-              longitude: i.longitude,
-              latitude: i.latitude,
-              color: i.status === 'RESOLVED' ? '#14b8a6' : i.status === 'IN_PROGRESS' ? '#f59e0b' : '#3b82f6',
-              popupHTML: `
+            markers={publicIssues
+              .filter(
+                (i) => activeFilter === "All" || i.category === activeFilter,
+              )
+              .map((i) => ({
+                id: i.id,
+                longitude: i.longitude,
+                latitude: i.latitude,
+                color:
+                  i.status === "RESOLVED"
+                    ? "#14b8a6"
+                    : i.status === "IN_PROGRESS"
+                      ? "#f59e0b"
+                      : "#3b82f6",
+                popupHTML: `
                 <div class="text-sm font-sans p-1">
                   <p class="font-bold mb-1">${i.title}</p>
                   <p class="text-xs text-gray-500 mb-2">${i.category}</p>
                   <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold text-white" 
-                    style="background-color: ${i.status === 'RESOLVED' ? '#14b8a6' : i.status === 'IN_PROGRESS' ? '#f59e0b' : '#3b82f6'}">
+                    style="background-color: ${i.status === "RESOLVED" ? "#14b8a6" : i.status === "IN_PROGRESS" ? "#f59e0b" : "#3b82f6"}">
                     ${i.status}
                   </span>
                 </div>
-              `
-            }))}
+              `,
+              }))}
             className="absolute inset-0"
           />
         </div>

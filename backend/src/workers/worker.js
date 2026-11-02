@@ -2,6 +2,7 @@ require('dotenv').config();
 const { isQueueConfigured } = require('../config/queue');
 const { startMediaWorker, closeMediaWorker } = require('./mediaWorker');
 const { startSlaWorker, closeSlaWorker } = require('./slaWorker');
+const { startPayoutWorker, closePayoutWorker } = require('./payoutWorker');
 const { closeAllQueues } = require('../queues');
 const { connectDB } = require('../config/db');
 const { reconcileOverdueIssues } = require('../services/slaService');
@@ -10,16 +11,29 @@ let isShuttingDown = false;
 let reconcileInterval = null;
 let isReconciling = false;
 let isStarted = false;
-let activeWorkers = { mediaWorker: null, slaWorker: null };
+let activeWorkers = { mediaWorker: null, slaWorker: null, payoutWorker: null };
 
 async function runReconciliation(source = 'periodic') {
   if (isReconciling || isShuttingDown) return;
   isReconciling = true;
   try {
     console.log(`[Worker Process] Running SLA overdue reconciliation (${source})...`);
-    const summary = await reconcileOverdueIssues();
-    console.log(`[Worker Process] Reconciliation (${source}) finished: ${summary.scannedCount} scanned, ${summary.overdueCount} overdue, ${summary.newlyNotifiedCount} newly notified.`);
-    return summary;
+    const slaSummary = await reconcileOverdueIssues();
+    console.log(`[Worker Process] SLA reconciliation (${source}) finished: ${slaSummary.scannedCount} scanned, ${slaSummary.overdueCount} overdue, ${slaSummary.newlyNotifiedCount} newly notified.`);
+
+    // Run ambiguous payout reconciliation & stuck webhook cleanup
+    try {
+      const paymentService = require('../services/paymentService');
+      if (typeof paymentService.reconcileAmbiguousPayouts === 'function') {
+        console.log(`[Worker Process] Running payout & webhook reconciliation (${source})...`);
+        const payoutSummary = await paymentService.reconcileAmbiguousPayouts();
+        console.log(`[Worker Process] Payout reconciliation (${source}) finished:`, payoutSummary);
+      }
+    } catch (payoutErr) {
+      console.warn(`[Worker Process] Payout reconciliation error (${source}):`, payoutErr.message);
+    }
+
+    return { slaSummary };
   } catch (err) {
     console.warn(`[Worker Process] Reconciliation error (${source}):`, err.message);
     return null;
@@ -37,6 +51,7 @@ async function startBackgroundWorkers() {
       activeWorkers: {
         mediaWorker: Boolean(activeWorkers.mediaWorker),
         slaWorker: Boolean(activeWorkers.slaWorker),
+        payoutWorker: Boolean(activeWorkers.payoutWorker),
       },
     };
   }
@@ -51,15 +66,17 @@ async function startBackgroundWorkers() {
   const hasRedis = isQueueConfigured();
   let mediaWorker = null;
   let slaWorker = null;
+  let payoutWorker = null;
 
   if (hasRedis) {
     try {
       mediaWorker = startMediaWorker();
       slaWorker = startSlaWorker();
-      activeWorkers = { mediaWorker, slaWorker };
+      payoutWorker = startPayoutWorker();
+      activeWorkers = { mediaWorker, slaWorker, payoutWorker };
 
-      if (mediaWorker || slaWorker) {
-        console.log('[Worker Process] Background queue workers initialized (Media & SLA).');
+      if (mediaWorker || slaWorker || payoutWorker) {
+        console.log('[Worker Process] Background queue workers initialized (Media, SLA & Payout).');
       } else {
         console.warn('[Worker Process] Queue workers could not connect to Redis; operating in database reconciliation mode.');
       }
@@ -96,6 +113,7 @@ async function startBackgroundWorkers() {
     activeWorkers: {
       mediaWorker: Boolean(activeWorkers.mediaWorker),
       slaWorker: Boolean(activeWorkers.slaWorker),
+      payoutWorker: Boolean(activeWorkers.payoutWorker),
     },
     reconciliationScheduled: true,
   };
@@ -115,9 +133,10 @@ async function stopBackgroundWorkers(signal = 'SHUTDOWN') {
   try {
     await closeMediaWorker();
     await closeSlaWorker();
+    await closePayoutWorker();
     await closeAllQueues();
 
-    activeWorkers = { mediaWorker: null, slaWorker: null };
+    activeWorkers = { mediaWorker: null, slaWorker: null, payoutWorker: null };
     isStarted = false;
     console.log('[Worker Process] Background workers stopped cleanly.');
   } catch (err) {

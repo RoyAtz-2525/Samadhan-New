@@ -71,6 +71,21 @@ enum AppraisalStatus {
   ACKNOWLEDGED
 }
 
+
+enum RewardEventType {
+  REPORT_APPROVED
+  ISSUE_RESOLVED
+  REDEMPTION
+  ADMIN_ADJUSTMENT
+}
+
+enum RewardStatus {
+  EARNED
+  REDEEMED
+  REVERSED
+  PENDING
+}
+
 enum NotificationType {
   INFO
   ALERT
@@ -78,6 +93,7 @@ enum NotificationType {
   PAYMENT
   ISSUE_UPDATE
   APPRAISAL
+  REWARD
 }
 
 model User {
@@ -145,6 +161,9 @@ model CitizenProfile {
   reportedIssues Issue[]
   feedback       Feedback[]
   reviewsGiven   Review[]
+  rewardPoints   Int            @default(0)
+  lifetimePoints Int            @default(0)
+  rewards        RewardLedger[]
 }
 
 model AdminProfile {
@@ -176,6 +195,18 @@ model WorkerProfile {
   isVerified       Boolean   @default(false)
   verificationDate DateTime?
   status           String    @default("AVAILABLE")
+
+  // RazorpayX Payout Beneficiary Details
+  payoutMethod             String?   @default("BANK_ACCOUNT")
+  bankAccountName          String?
+  bankAccountNumberMasked  String?
+  bankIfsc                 String?
+  upiVpa                   String?
+  payoutConsentGiven       Boolean   @default(false)
+  payoutConsentDate        DateTime?
+  razorpayContactId        String?
+  razorpayFundAccountId    String?
+  payoutAccountVerified    Boolean   @default(false)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -253,6 +284,7 @@ model Issue {
   payments      Payment[]
   feedback      Feedback[]
   notifications Notification[]
+  rewards       RewardLedger[]
 
   @@index([status])
   @@index([categoryId])
@@ -386,6 +418,17 @@ model Payment {
   gatewayTransactionId String?
   paidAt               DateTime?
   failureReason        String?
+
+  // RazorpayX Payout Attributes
+  payoutId                 String?
+  idempotencyKey           String?       @unique
+  payoutMode               String?
+  payoutStatus             String?
+  payoutFee                Decimal?
+  payoutTax                Decimal?
+  payoutUtr                String?
+  payoutFailureReason      String?
+  payoutReversedAt         DateTime?
   createdAt            DateTime      @default(now())
   updatedAt            DateTime      @updatedAt
 
@@ -540,4 +583,45 @@ model WorkerAppraisal {
   @@index([periodStart])
   @@index([periodEnd])
   @@index([status])
+}
+
+model RewardLedger {
+  id        String          @id @default(uuid())
+  citizenId String
+  issueId   String?
+  points    Int
+  eventType RewardEventType
+  status    RewardStatus    @default(EARNED)
+  reason    String
+  metadata  Json?
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  citizen CitizenProfile @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+  issue   Issue?         @relation(fields: [issueId], references: [id], onDelete: SetNull)
+
+  @@unique([citizenId, issueId, eventType])
+  @@index([citizenId])
+  @@index([issueId])
+  @@index([eventType])
+  @@index([createdAt])
+}
+
+model WebhookEvent {
+  id           String    @id @default(uuid())
+  gateway      String
+  eventId      String
+  eventType    String
+  status       String    @default("PROCESSING")
+  payload      Json?
+  errorMessage String?
+  processedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([gateway, eventId])
+  @@index([gateway])
+  @@index([eventId])
+  @@index([status])
+  @@index([createdAt])
 }

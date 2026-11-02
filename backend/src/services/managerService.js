@@ -346,6 +346,7 @@ const getAssignmentDetails = async (managerUserId, assignmentId) => {
       worker: { include: { user: true, skills: true } },
       statusHistory: { orderBy: { timestamp: 'desc' } },
       beforeVerification: true,
+      afterVerification: true,
       progressRecords: { include: { media: true }, orderBy: { createdAt: 'asc' } }
     }
   });

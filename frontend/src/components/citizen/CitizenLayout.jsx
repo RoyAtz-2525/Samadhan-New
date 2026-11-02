@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, PlusCircle, List, Menu, X, Bell, LogOut, ChevronDown } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, List, Menu, X, Bell, LogOut, ChevronDown, Award } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const CitizenLayout = () => {
@@ -18,7 +18,8 @@ const CitizenLayout = () => {
   const navLinks = [
     { name: 'Dashboard', path: '/citizen/dashboard', icon: LayoutDashboard },
     { name: 'Report Issue', path: '/citizen/report-issue', icon: PlusCircle },
-    { name: 'My Issues', path: '/citizen/issues', icon: List }
+    { name: 'My Issues', path: '/citizen/issues', icon: List },
+    { name: 'Rewards', path: '/citizen/rewards', icon: Award }
   ];
 
   return (

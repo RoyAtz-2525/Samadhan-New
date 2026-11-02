@@ -14,6 +14,7 @@ import NotFound from './pages/public/NotFound';
 
 // Citizen pages
 import CitizenDashboard from './pages/citizen/CitizenDashboard';
+import CitizenRewards from './pages/citizen/CitizenRewards';
 import ReportIssue from './pages/citizen/ReportIssue';
 import MyIssues from './pages/citizen/MyIssues';
 import IssueDetails from './pages/citizen/IssueDetails';
@@ -83,6 +84,7 @@ function App() {
                 <Route path="report-issue" element={<ReportIssue />} />
                 <Route path="issues" element={<MyIssues />} />
                 <Route path="issues/:id" element={<IssueDetails />} />
+                <Route path="rewards" element={<CitizenRewards />} />
               </Route>
             </Route>
             
