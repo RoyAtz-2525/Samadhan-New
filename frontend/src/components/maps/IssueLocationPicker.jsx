@@ -1,8 +1,42 @@
 import React, { useRef, useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
-import { MapPin, Navigation, Loader2, AlertCircle } from 'lucide-react';
+import 'mapbox-gl/dist/mapbox-gl.css';
+import { MapPin, Navigation, Loader2 } from 'lucide-react';
 
-mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || '';
+const OPEN_RASTER_STYLE = {
+  version: 8,
+  sources: {
+    'carto-tiles': {
+      type: 'raster',
+      tiles: [
+        'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+        'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+        'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+        'https://d.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png'
+      ],
+      tileSize: 256,
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+    }
+  },
+  layers: [
+    {
+      id: 'carto-tiles-layer',
+      type: 'raster',
+      source: 'carto-tiles',
+      minzoom: 0,
+      maxzoom: 20
+    }
+  ]
+};
+
+const rawToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || '';
+const hasValidMapboxToken = typeof rawToken === 'string' && rawToken.startsWith('pk.eyJ');
+
+if (hasValidMapboxToken) {
+  mapboxgl.accessToken = rawToken;
+} else {
+  mapboxgl.accessToken = 'pk.eyJ1IjoiZHVtbXkiLCJhIjoiZHVtbXkifQ.dummy';
+}
 
 const IssueLocationPicker = ({
   initialLocation,
@@ -17,52 +51,21 @@ const IssueLocationPicker = ({
   const [locationError, setLocationError] = useState('');
 
   const defaultCenter = [78.9629, 20.5937]; // India
-  const [currentCenter, setCurrentCenter] = useState(
-    initialLocation ? [initialLocation.longitude, initialLocation.latitude] : defaultCenter
-  );
+  const currentCenter = initialLocation
+    ? [parseFloat(initialLocation.longitude) || 78.9629, parseFloat(initialLocation.latitude) || 20.5937]
+    : defaultCenter;
 
-  useEffect(() => {
-    if (map.current) return;
+  const mapStyle = hasValidMapboxToken ? 'mapbox://styles/mapbox/streets-v12' : OPEN_RASTER_STYLE;
 
-    if (!mapboxgl.accessToken) {
-      console.warn("Mapbox access token is missing.");
-      return;
-    }
-
-    const zoomLevel = initialLocation ? 15 : 4;
-
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v12',
-      center: currentCenter,
-      zoom: zoomLevel
-    });
-
-    map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
-
-    // Create marker if initial location exists
-    if (initialLocation) {
-      marker.current = new mapboxgl.Marker({ color: '#EF4444', draggable: true })
-        .setLngLat([initialLocation.longitude, initialLocation.latitude])
-        .addTo(map.current);
-
-      marker.current.on('dragend', onDragEnd);
-    }
-
-    map.current.on('click', (e) => {
-      const { lng, lat } = e.lngLat;
-      updateMarker(lng, lat);
-    });
-
-    return () => {
-      if (map.current) {
-        map.current.remove();
-        map.current = null;
-      }
-    };
-  }, []);
+  const onDragEnd = () => {
+    if (!marker.current) return;
+    const lngLat = marker.current.getLngLat();
+    onLocationSelect({ latitude: lngLat.lat, longitude: lngLat.lng });
+  };
 
   const updateMarker = (lng, lat) => {
+    if (!map.current) return;
+
     if (!marker.current) {
       marker.current = new mapboxgl.Marker({ color: '#EF4444', draggable: true })
         .setLngLat([lng, lat])
@@ -77,11 +80,45 @@ const IssueLocationPicker = ({
     onLocationSelect({ latitude: lat, longitude: lng });
   };
 
-  const onDragEnd = () => {
-    if (!marker.current) return;
-    const lngLat = marker.current.getLngLat();
-    onLocationSelect({ latitude: lngLat.lat, longitude: lngLat.lng });
-  };
+  useEffect(() => {
+    if (map.current) return;
+    if (!mapContainer.current) return;
+
+    const zoomLevel = initialLocation ? 15 : 4;
+
+    try {
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: mapStyle,
+        center: currentCenter,
+        zoom: zoomLevel
+      });
+
+      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
+      if (initialLocation && initialLocation.latitude && initialLocation.longitude) {
+        marker.current = new mapboxgl.Marker({ color: '#EF4444', draggable: true })
+          .setLngLat([parseFloat(initialLocation.longitude), parseFloat(initialLocation.latitude)])
+          .addTo(map.current);
+
+        marker.current.on('dragend', onDragEnd);
+      }
+
+      map.current.on('click', (e) => {
+        const { lng, lat } = e.lngLat;
+        updateMarker(lng, lat);
+      });
+    } catch (err) {
+      console.error('Failed to initialize location picker map:', err);
+    }
+
+    return () => {
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+      }
+    };
+  }, []);
 
   const handleGetCurrentLocation = () => {
     setIsLocating(true);

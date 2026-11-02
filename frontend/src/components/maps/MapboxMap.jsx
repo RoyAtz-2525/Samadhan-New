@@ -1,10 +1,43 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
-// Use the token from env variables
-mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || '';
+// Open CartoDB Voyager raster tiles (OpenStreetMap-based, open & free)
+const OPEN_RASTER_STYLE = {
+  version: 8,
+  sources: {
+    'carto-tiles': {
+      type: 'raster',
+      tiles: [
+        'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+        'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+        'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+        'https://d.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png'
+      ],
+      tileSize: 256,
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+    }
+  },
+  layers: [
+    {
+      id: 'carto-tiles-layer',
+      type: 'raster',
+      source: 'carto-tiles',
+      minzoom: 0,
+      maxzoom: 20
+    }
+  ]
+};
 
-import { MapPin, AlertCircle } from 'lucide-react';
+const rawToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || '';
+const hasValidMapboxToken = typeof rawToken === 'string' && rawToken.startsWith('pk.eyJ');
+
+if (hasValidMapboxToken) {
+  mapboxgl.accessToken = rawToken;
+} else {
+  // Client dummy token satisfying Mapbox GL JS internal format check
+  mapboxgl.accessToken = 'pk.eyJ1IjoiZHVtbXkiLCJhIjoiZHVtbXkifQ.dummy';
+}
 
 const MapboxMap = ({
   center = [78.9629, 20.5937], // Default to center of India
@@ -22,37 +55,43 @@ const MapboxMap = ({
   const map = useRef(null);
   const markerRefs = useRef({});
 
+  const sanitizedCenter = [
+    typeof center?.[0] === 'number' ? center[0] : parseFloat(center?.[0]) || 78.9629,
+    typeof center?.[1] === 'number' ? center[1] : parseFloat(center?.[1]) || 20.5937,
+  ];
+
+  const mapStyle = hasValidMapboxToken ? (style || 'mapbox://styles/mapbox/streets-v12') : OPEN_RASTER_STYLE;
+
   useEffect(() => {
-    if (map.current) return; // initialize map only once
-    
-    if (!mapboxgl.accessToken) {
-      console.warn("Mapbox access token is missing. Please set VITE_MAPBOX_ACCESS_TOKEN in your .env file.");
-      return; // Do not initialize Mapbox to prevent crash
-    }
+    if (map.current) return;
+    if (!mapContainer.current) return;
 
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: style,
-      center: center,
-      zoom: zoom,
-      interactive: interactive
-    });
-
-    if (interactive) {
-      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
-    }
-
-    map.current.on('load', () => {
-      if (onMapLoad) onMapLoad(map.current);
-    });
-
-    if (onClick) {
-      map.current.on('click', (e) => {
-        onClick(e.lngLat);
+    try {
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: mapStyle,
+        center: sanitizedCenter,
+        zoom: zoom,
+        interactive: interactive
       });
+
+      if (interactive) {
+        map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+      }
+
+      map.current.on('load', () => {
+        if (onMapLoad) onMapLoad(map.current);
+      });
+
+      if (onClick) {
+        map.current.on('click', (e) => {
+          onClick(e.lngLat);
+        });
+      }
+    } catch (err) {
+      console.error('Failed to initialize map:', err);
     }
 
-    // Cleanup on unmount
     return () => {
       if (map.current) {
         map.current.remove();
@@ -61,18 +100,20 @@ const MapboxMap = ({
     };
   }, []);
 
+  const centerLng = center?.[0];
+  const centerLat = center?.[1];
+
   // Update center and zoom when props change
   useEffect(() => {
-    if (map.current && center && center.length === 2) {
-      map.current.flyTo({ center, zoom });
+    if (map.current && sanitizedCenter.length === 2 && !isNaN(sanitizedCenter[0]) && !isNaN(sanitizedCenter[1])) {
+      map.current.flyTo({ center: sanitizedCenter, zoom });
     }
-  }, [center, zoom]);
+  }, [centerLng, centerLat, zoom]);
 
   // Update markers when props change
   useEffect(() => {
     if (!map.current) return;
 
-    // Remove existing markers that are not in the new list
     const currentMarkerIds = markers.map(m => m.id);
     Object.keys(markerRefs.current).forEach(id => {
       if (!currentMarkerIds.includes(id)) {
@@ -81,25 +122,21 @@ const MapboxMap = ({
       }
     });
 
-    // Add or update markers
     markers.forEach(markerProps => {
       const { id, longitude, latitude, color = '#3B82F6', popupHTML, onClick } = markerProps;
-      
-      // Skip invalid coordinates
-      if (typeof longitude !== 'number' || typeof latitude !== 'number' || 
-          isNaN(longitude) || isNaN(latitude)) {
+
+      const lng = typeof longitude === 'number' ? longitude : parseFloat(longitude);
+      const lat = typeof latitude === 'number' ? latitude : parseFloat(latitude);
+
+      if (isNaN(lng) || isNaN(lat)) {
         return;
       }
 
       if (!markerRefs.current[id]) {
-        // Create new marker
-        const el = document.createElement('div');
-        el.className = 'marker';
-        
         const mapboxMarker = new mapboxgl.Marker({ color })
-          .setLngLat([longitude, latitude])
+          .setLngLat([lng, lat])
           .addTo(map.current);
-          
+
         if (popupHTML) {
           const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupHTML);
           mapboxMarker.setPopup(popup);
@@ -115,10 +152,7 @@ const MapboxMap = ({
 
         markerRefs.current[id] = mapboxMarker;
       } else {
-        // Update existing marker
-        markerRefs.current[id].setLngLat([longitude, latitude]);
-        
-        // If color changed, ideally we'd recreate it or update its SVG, but for simplicity here we assume color is constant or handled via custom HTML
+        markerRefs.current[id].setLngLat([lng, lat]);
         if (popupHTML) {
           const popup = markerRefs.current[id].getPopup();
           if (popup) {
@@ -129,14 +163,13 @@ const MapboxMap = ({
         }
       }
     });
-
   }, [markers]);
 
   return (
-    <div 
-      ref={mapContainer} 
-      className={`map-container ${className}`} 
-      style={{ height, width, borderRadius: '0.5rem', overflow: 'hidden', position: 'relative' }} 
+    <div
+      ref={mapContainer}
+      className={`map-container ${className}`}
+      style={{ height, width, borderRadius: '0.75rem', overflow: 'hidden', position: 'relative' }}
     />
   );
 };

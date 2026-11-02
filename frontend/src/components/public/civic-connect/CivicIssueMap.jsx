@@ -1,40 +1,64 @@
 import React, { useState, useEffect } from "react";
 import MapboxMap from "../../maps/MapboxMap";
-import { MapPin, Filter, Layers } from "lucide-react";
+import { MapPin, Filter } from "lucide-react";
 import api from "../../../services/api";
 
-const CivicIssueMap = () => {
-  const [publicIssues, setPublicIssues] = useState([]);
+const CivicIssueMap = ({ issues: propIssues }) => {
+  const [internalIssues, setInternalIssues] = useState([]);
+  const [activeFilter, setActiveFilter] = useState("All");
 
   useEffect(() => {
-    // In a real implementation, this would fetch from /api/issues/public-map
-    // Fetching minimal safe data: id, title, latitude, longitude, status, category
-    // For now, we leave it empty or mock a few for demonstration if needed.
-    const fetchPublicIssues = async () => {
-      try {
-        const response = await api.get("/issues/public-map");
-        const data = response.data;
-        if (Array.isArray(data)) {
-          setPublicIssues(data);
-        }
-      } catch (err) {
-        console.error("Failed to fetch public map data", err);
+    if (propIssues !== undefined) return;
+
+    let isMounted = true;
+    api.get("/issues/public-map").then((response) => {
+      if (isMounted && Array.isArray(response.data)) {
+        setInternalIssues(response.data);
       }
+    }).catch((err) => {
+      console.error("Failed to fetch public map data", err);
+    });
+
+    return () => {
+      isMounted = false;
     };
+  }, [propIssues]);
 
-    fetchPublicIssues();
-  }, []);
+  const publicIssues = propIssues !== undefined ? propIssues : internalIssues;
 
-  const [activeFilter, setActiveFilter] = useState("All");
-  const filters = [
-    "All",
-    "Road",
-    "Garbage",
-    "Water",
+  const knownCategories = [
+    "Road Damage",
     "Street Light",
+    "Garbage",
     "Drainage",
-    "Safety",
+    "Water Leakage",
+    "Traffic/Safety",
   ];
+
+  const availableCategories = [
+    "All",
+    ...new Set([
+      ...publicIssues.map((i) => i.category).filter(Boolean),
+      ...knownCategories,
+    ]),
+  ];
+
+  const filteredIssues =
+    activeFilter === "All"
+      ? publicIssues
+      : publicIssues.filter(
+          (issue) =>
+            issue.category?.toLowerCase() === activeFilter.toLowerCase(),
+        );
+
+  const validCoordinates = publicIssues.filter(
+    (i) => i.latitude && i.longitude && !isNaN(parseFloat(i.latitude)) && !isNaN(parseFloat(i.longitude)),
+  );
+
+  const defaultCenter =
+    validCoordinates.length > 0
+      ? [parseFloat(validCoordinates[0].longitude), parseFloat(validCoordinates[0].latitude)]
+      : [77.5946, 12.9716];
 
   return (
     <section className="py-12 md:py-20 bg-slate-50">
@@ -48,7 +72,7 @@ const CivicIssueMap = () => {
               Public Issue Map
             </h2>
             <p className="text-slate-600 mt-3 text-lg max-w-2xl">
-              Explore verified civic activity in your area.
+              Explore verified civic activity across your neighborhood.
             </p>
           </div>
 
@@ -78,55 +102,60 @@ const CivicIssueMap = () => {
             </span>
           </div>
           <div className="flex gap-2 bg-slate-200/50 p-1 rounded-xl">
-            {filters.map((filter) => (
+            {availableCategories.map((category) => (
               <button
-                key={filter}
-                onClick={() => setActiveFilter(filter)}
+                key={category}
+                onClick={() => setActiveFilter(category)}
                 className={
                   "shrink-0 px-5 py-2 rounded-lg text-sm font-bold transition-all " +
-                  (activeFilter === filter
-                    ? "bg-white text-slate-900 shadow-sm border border-slate-200/50"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-200")
+                  (activeFilter === category
+                    ? "bg-white text-blue-600 shadow-sm"
+                    : "text-slate-600 hover:text-slate-900")
                 }
               >
-                {filter}
+                {category}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Map Container */}
-        <div className="w-full h-[500px] lg:h-[600px] bg-slate-200 rounded-3xl border border-slate-300 flex flex-col items-center justify-center relative overflow-hidden shadow-inner">
+        {/* Interactive Map */}
+        <div className="h-[550px] w-full rounded-3xl overflow-hidden shadow-xl border border-slate-200/60 relative">
           <MapboxMap
             height="100%"
-            zoom={12}
-            center={[78.9629, 20.5937]}
-            markers={publicIssues
-              .filter(
-                (i) => activeFilter === "All" || i.category === activeFilter,
-              )
-              .map((i) => ({
-                id: i.id,
-                longitude: i.longitude,
-                latitude: i.latitude,
-                color:
-                  i.status === "RESOLVED"
-                    ? "#14b8a6"
-                    : i.status === "IN_PROGRESS"
-                      ? "#f59e0b"
-                      : "#3b82f6",
-                popupHTML: `
-                <div class="text-sm font-sans p-1">
-                  <p class="font-bold mb-1">${i.title}</p>
-                  <p class="text-xs text-gray-500 mb-2">${i.category}</p>
-                  <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold text-white" 
-                    style="background-color: ${i.status === "RESOLVED" ? "#14b8a6" : i.status === "IN_PROGRESS" ? "#f59e0b" : "#3b82f6"}">
-                    ${i.status}
+            center={defaultCenter}
+            zoom={filteredIssues.length > 0 ? 11 : 4}
+            markers={filteredIssues.map((issue) => ({
+              id: issue.id,
+              longitude: parseFloat(issue.longitude),
+              latitude: parseFloat(issue.latitude),
+              color:
+                issue.status === "RESOLVED"
+                  ? "#10b981"
+                  : ["ASSIGNED", "WORK_STARTED", "WORK_COMPLETED"].includes(
+                        issue.status,
+                      )
+                    ? "#f59e0b"
+                    : "#3b82f6",
+              popupHTML: `
+                <div class="p-2 font-sans">
+                  <h4 class="font-bold text-slate-900 text-sm mb-1">${issue.title || "Civic Issue"}</h4>
+                  <span class="inline-block px-2 py-0.5 text-xs font-semibold rounded ${
+                    issue.status === "RESOLVED"
+                      ? "bg-teal-50 text-teal-700"
+                      : ["ASSIGNED", "WORK_STARTED", "WORK_COMPLETED"].includes(
+                            issue.status,
+                          )
+                        ? "bg-amber-50 text-amber-700"
+                        : "bg-blue-50 text-blue-700"
+                  }">
+                    ${issue.status ? issue.status.replace(/_/g, " ") : "Open"}
                   </span>
+                  <p class="text-xs text-slate-500 mt-2 font-medium">Category: ${issue.category || "General"}</p>
                 </div>
               `,
-              }))}
-            className="absolute inset-0"
+            }))}
+            className="w-full h-full"
           />
         </div>
       </div>

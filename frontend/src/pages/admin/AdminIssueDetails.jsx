@@ -232,7 +232,7 @@ const AdminIssueDetails = () => {
                   {issue.latitude && issue.longitude && (
                     <div className="flex items-center gap-2 text-sm font-mono bg-slate-100 p-3 rounded-lg w-fit text-[#64748B]">
                       <MapPin size={16} />
-                      {issue.latitude?.toFixed(5)}, {issue.longitude?.toFixed(5)}
+                      {issue.latitude != null ? Number(issue.latitude).toFixed(5) : ''}, {issue.longitude != null ? Number(issue.longitude).toFixed(5) : ''}
                     </div>
                   )}
                 </div>

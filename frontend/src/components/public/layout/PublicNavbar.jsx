@@ -3,7 +3,6 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
   Menu,
   X,
-  User,
   LayoutDashboard,
   LogOut,
   ChevronDown,
@@ -77,6 +76,29 @@ const PublicNavbar = () => {
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
+
+  const getUserDisplayName = () => {
+    if (!user) return 'Profile';
+    if (user.name && user.name.trim() && user.name.toLowerCase() !== 'account') {
+      return user.name;
+    }
+    if (user.email) {
+      const prefix = user.email.split('@')[0].replace(/[._-]/g, ' ').trim();
+      if (prefix) {
+        return prefix
+          .split(' ')
+          .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+          .join(' ');
+      }
+    }
+    if (user.role?.name) {
+      const r = user.role.name.replace(/_/g, ' ').toLowerCase();
+      return r.charAt(0).toUpperCase() + r.slice(1);
+    }
+    return 'Profile';
+  };
+
+  const displayName = getUserDisplayName();
 
   const navLinks = [
     { name: "Home", path: "/" },
@@ -170,12 +192,12 @@ const PublicNavbar = () => {
                     aria-expanded={isDropdownOpen}
                     className="flex items-center gap-2.5 rounded-lg border border-[#E2E8F0] bg-white px-3 py-2 transition-all duration-200 hover:border-[#CBD5E1] hover:bg-[#F5F7FA] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3B82F6]"
                   >
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#EAF7F5] text-[#0F9D8A]">
-                      <User size={16} />
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[#0F9D8A] to-[#0B1F3A] text-white font-bold text-xs shadow-sm">
+                      {displayName.charAt(0).toUpperCase()}
                     </div>
 
                     <span className="max-w-[130px] truncate text-sm font-semibold text-[#0F172A]">
-                      {user.name || "Account"}
+                      {displayName}
                     </span>
 
                     <ChevronDown
@@ -191,13 +213,13 @@ const PublicNavbar = () => {
                       {/* Account Header */}
                       <div className="border-b border-[#E2E8F0] bg-[#F8FAFC] px-4 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#EAF7F5] text-[#0F9D8A]">
-                            <User size={18} />
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#0F9D8A] to-[#0B1F3A] text-white font-bold text-sm shadow-sm">
+                            {displayName.charAt(0).toUpperCase()}
                           </div>
 
                           <div className="min-w-0">
                             <p className="truncate text-sm font-semibold text-[#0F172A]">
-                              {user.name || "Account"}
+                              {displayName}
                             </p>
 
                             <p className="truncate text-xs text-[#64748B]">
@@ -336,13 +358,13 @@ const PublicNavbar = () => {
                   {/* Mobile User Info */}
                   <div className="mb-3 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#EAF7F5] text-[#0F9D8A]">
-                        <User size={18} />
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#0F9D8A] to-[#0B1F3A] text-white font-bold text-sm shadow-sm">
+                        {displayName.charAt(0).toUpperCase()}
                       </div>
 
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold text-[#0F172A]">
-                          {user.name || "Account"}
+                          {displayName}
                         </p>
 
                         <p className="truncate text-xs text-[#64748B]">

@@ -1,10 +1,45 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { AlertCircle, Search, HardHat, CheckCircle2 } from 'lucide-react';
+import api from '../../../services/api';
 
-const CommunityOverview = () => {
+const CommunityOverview = ({ issues: propIssues, loading: propLoading }) => {
+  const [internalIssues, setInternalIssues] = useState([]);
+  const [internalLoading, setInternalLoading] = useState(true);
+
+  useEffect(() => {
+    if (propIssues !== undefined) return;
+
+    let isMounted = true;
+    api.get('/issues/public-map')
+      .then((res) => {
+        if (isMounted && Array.isArray(res.data)) {
+          setInternalIssues(res.data);
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load community metrics:', err);
+      })
+      .finally(() => {
+        if (isMounted) setInternalLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [propIssues]);
+
+  const issues = propIssues !== undefined ? propIssues : internalIssues;
+  const loading = propLoading !== undefined ? propLoading : internalLoading;
+
+  const reportedCount = issues.filter(i => i.status === 'REPORTED').length;
+  const underReviewCount = issues.filter(i => ['UNDER_REVIEW', 'APPROVED'].includes(i.status)).length;
+  const inProgressCount = issues.filter(i => ['ASSIGNED', 'WORK_STARTED', 'WORK_COMPLETED', 'UNDER_VERIFICATION'].includes(i.status)).length;
+  const resolvedCount = issues.filter(i => i.status === 'RESOLVED').length;
+
   const metrics = [
     {
       title: 'Reported',
+      count: reportedCount,
       icon: AlertCircle,
       color: 'text-blue-600',
       bgColor: 'bg-blue-50',
@@ -12,6 +47,7 @@ const CommunityOverview = () => {
     },
     {
       title: 'Under Review',
+      count: underReviewCount,
       icon: Search,
       color: 'text-indigo-600',
       bgColor: 'bg-indigo-50',
@@ -19,6 +55,7 @@ const CommunityOverview = () => {
     },
     {
       title: 'In Progress',
+      count: inProgressCount,
       icon: HardHat,
       color: 'text-amber-600',
       bgColor: 'bg-amber-50',
@@ -26,6 +63,7 @@ const CommunityOverview = () => {
     },
     {
       title: 'Resolved',
+      count: resolvedCount,
       icon: CheckCircle2,
       color: 'text-teal-600',
       bgColor: 'bg-teal-50',
@@ -54,11 +92,12 @@ const CommunityOverview = () => {
               <h3 className="text-sm font-bold text-slate-700 uppercase tracking-widest mb-3">
                 {metric.title}
               </h3>
-              {/* API-ready placeholder state */}
-              <div className="text-4xl font-extrabold text-slate-900 opacity-20 flex items-center justify-center">
-                ?"
+              <div className="text-4xl font-extrabold text-slate-900 flex items-center justify-center tracking-tight">
+                {loading ? '...' : metric.count}
               </div>
-              <p className="text-sm font-medium text-slate-500 mt-4 bg-white/50 px-3 py-1 rounded-full">Pending Data</p>
+              <p className="text-xs font-semibold text-slate-500 mt-4 bg-white/70 px-3 py-1 rounded-full border border-slate-200/60 shadow-sm">
+                Live Database Count
+              </p>
             </div>
           ))}
         </div>

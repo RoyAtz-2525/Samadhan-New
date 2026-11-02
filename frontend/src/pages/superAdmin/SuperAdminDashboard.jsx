@@ -3,7 +3,8 @@ import superAdminService from '../../services/superAdmin/superAdminService';
 import { 
   Users, AlertTriangle, CheckCircle, Clock, 
   CreditCard, Activity, Briefcase, FileText,
-  ChevronRight, ArrowUpRight, BarChart3, Database, ShieldCheck
+  ChevronRight, ArrowUpRight, BarChart3, Database, ShieldCheck,
+  Settings
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 

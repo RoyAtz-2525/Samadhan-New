@@ -8,10 +8,12 @@ import {
   Camera,
   ArrowUpRight,
 } from "lucide-react";
+import api from "../../../services/api";
 
 const ImpactStats = () => {
   const [visible, setVisible] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
+  const [liveIssues, setLiveIssues] = useState([]);
   const sectionRef = useRef(null);
 
   useEffect(() => {
@@ -28,6 +30,40 @@ const ImpactStats = () => {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    const fetchLiveIssues = async () => {
+      try {
+        const res = await api.get('/issues/public-map');
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          const mapped = res.data.slice(0, 4).map((item, idx) => {
+            const isResolved = item.status === 'RESOLVED';
+            const isInProgress = ['ASSIGNED', 'WORK_STARTED', 'WORK_COMPLETED', 'UNDER_VERIFICATION'].includes(item.status);
+            const isUnderReview = ['REPORTED', 'APPROVED'].includes(item.status);
+
+            return {
+              id: `0${idx + 1}`,
+              category: item.category || 'Civic Issue',
+              title: item.title,
+              location: item.latitude && item.longitude
+                ? `Coords (${parseFloat(item.latitude).toFixed(3)}, ${parseFloat(item.longitude).toFixed(3)})`
+                : 'Municipal Area',
+              status: item.status ? item.status.replace(/_/g, ' ') : 'Reported',
+              color: isResolved ? '#16A34A' : isInProgress ? '#8B5CF6' : isUnderReview ? '#F59E0B' : '#3B82F6',
+              icon: isResolved ? CheckCircle2 : isInProgress ? MapPin : isUnderReview ? Clock : HardHat,
+              progress: isResolved ? 100 : isInProgress ? 65 : 25,
+              worker: isResolved ? 'Verified Resolution' : isInProgress ? 'Worker Assigned' : 'Admin Review',
+              media: true,
+            };
+          });
+          setLiveIssues(mapped);
+        }
+      } catch (err) {
+        console.error('Failed to fetch live issues for ImpactStats:', err);
+      }
+    };
+    fetchLiveIssues();
+  }, []);
+
   const lifecycle = [
     "Reported",
     "Under Review",
@@ -37,11 +73,12 @@ const ImpactStats = () => {
     "Resolved",
   ];
 
-  // Sample issue cards — UI structure only, no fake numbers
-  const issues = [
+  // Fallback issue cards — UI structure fallback only if network offline
+  const fallbackIssues = [
     {
       id: "01",
       category: "Road Damage",
+      title: "Road Repair",
       location: "Ward 04 · Sector B",
       status: "In Progress",
       color: "#8B5CF6",
@@ -53,6 +90,7 @@ const ImpactStats = () => {
     {
       id: "02",
       category: "Street Light",
+      title: "Street Light Restoration",
       location: "Ward 02 · Sector A",
       status: "Resolved",
       color: "#16A34A",
@@ -64,6 +102,7 @@ const ImpactStats = () => {
     {
       id: "03",
       category: "Garbage Collection",
+      title: "Waste Clearance",
       location: "Ward 07 · Sector C",
       status: "Under Review",
       color: "#F59E0B",
@@ -75,6 +114,7 @@ const ImpactStats = () => {
     {
       id: "04",
       category: "Drainage Issue",
+      title: "Drain Unclogging",
       location: "Ward 05 · Sector D",
       status: "Assigned",
       color: "#3B82F6",
@@ -84,6 +124,8 @@ const ImpactStats = () => {
       media: false,
     },
   ];
+
+  const issues = liveIssues.length > 0 ? liveIssues : fallbackIssues;
 
   return (
     <section
@@ -287,14 +329,14 @@ const ImpactStats = () => {
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
                               <h3 className="text-[13px] font-bold leading-tight text-[#0B1F3A] sm:text-[14px]">
-                                {issue.category}
+                                {issue.title || issue.category}
                               </h3>
                               <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-[#CBD5E1]">
                                 #{issue.id}
                               </span>
                             </div>
                             <p className="mt-0.5 text-[11px] text-[#94A3B8]">
-                              {issue.location}
+                              {issue.category} · {issue.location}
                             </p>
                           </div>
                         </div>

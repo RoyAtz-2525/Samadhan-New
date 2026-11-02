@@ -13,6 +13,7 @@ const WorkerDashboard = () => {
   const [metrics, setMetrics] = useState(null);
   const [performance, setPerformance] = useState(null);
   const [appraisals, setAppraisals] = useState([]);
+  const [assignments, setAssignments] = useState([]);
   const [payments, setPayments] = useState([]);
   const [payoutAccount, setPayoutAccount] = useState(null);
   const [savingPayout, setSavingPayout] = useState(false);
@@ -65,14 +66,17 @@ const WorkerDashboard = () => {
   const fetchDashboard = async () => {
     try {
       setLoading(true);
-      const [dashRes, perfRes, appRes] = await Promise.all([
+      const [dashRes, perfRes, appRes, assignRes] = await Promise.all([
         workerService.getDashboardMetrics(),
         workerService.getPerformance(),
-        workerService.getAppraisals()
+        workerService.getAppraisals(),
+        workerService.getAssignments().catch(() => ({ data: [] }))
       ]);
       setMetrics(dashRes.data || { pending: 0, active: 0, accepted: 0, total: 0, rejected: 0 });
       setPerformance(perfRes.data || null);
       setAppraisals(appRes.data || []);
+      const rawAssign = assignRes.data || assignRes;
+      setAssignments(Array.isArray(rawAssign) ? rawAssign : []);
       try {
         const payRes = await paymentService.getWorkerPayments();
         setPayments(payRes.data || []);
@@ -155,7 +159,7 @@ const WorkerDashboard = () => {
     );
   }
 
-  const completedWork = metrics ? (metrics.total - metrics.pending - metrics.active - metrics.accepted - metrics.rejected) : 0;
+  const completedWork = metrics ? ((metrics.total || 0) - (metrics.pending || 0) - (metrics.active || 0) - (metrics.accepted || 0) - (metrics.rejected || 0)) : 0;
   const pendingAppraisals = appraisals.filter(a => a.status === 'SUBMITTED').length;
 
   return (
@@ -176,7 +180,7 @@ const WorkerDashboard = () => {
               Good Morning, <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-teal-400">{user?.name?.split(' ')[0] || 'Worker'}</span>
             </h1>
             <p className="text-slate-300 text-lg leading-relaxed">
-              Stay on top of your assignments and help make your community better. You have <span className="font-bold text-white">{metrics.pending} pending</span> assignments today.
+              Stay on top of your assignments and help make your community better. You have <span className="font-bold text-white">{metrics?.pending ?? 0} pending</span> assignments today.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Link 
@@ -186,7 +190,7 @@ const WorkerDashboard = () => {
                 View New Assignments
                 <ChevronRight size={18} className="ml-1" strokeWidth={2.5} />
               </Link>
-              {metrics.active > 0 && (
+              {(metrics?.active ?? 0) > 0 && (
                 <Link 
                   to="/worker/assignments?status=IN_PROGRESS" 
                   className="bg-white/10 hover:bg-white/20 text-white border border-white/20 px-6 py-3 rounded-xl font-bold transition-all shadow-sm hover:shadow-md inline-flex items-center backdrop-blur-sm"
